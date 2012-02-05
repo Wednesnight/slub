@@ -16,7 +16,7 @@
 {
 
   'variables': {
-    'lua_path': './lua_5_1_4',
+    'lua_path%': './lua_5_1_4',
   },
 
   'targets': [
