@@ -2,3 +2,4 @@
 *.xcworkspace
 xcuserdata
 slub.xcodeproj
+test/testslub.xcodeproj
