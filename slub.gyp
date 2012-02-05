@@ -17,6 +17,13 @@
 
   'variables': {
     'lua_path%': './lua_5_1_4',
+
+    'SLUB_STRING_INCLUDE%' : '<string>',
+    'SLUB_STRING_TYPE%'    : 'std::string',
+    'SLUB_LIST_INCLUDE%'   : '<list>',
+    'SLUB_LIST_TYPE%'      : 'std::list',
+    'SLUB_MAP_INCLUDE%'    : '<map>',
+    'SLUB_MAP_TYPE%'       : 'std::map',
   },
 
   'targets': [
@@ -88,6 +95,15 @@
         },
 
       },
+
+      'defines': [
+        'SLUB_STRING_INCLUDE=<@(SLUB_STRING_INCLUDE)',
+        'SLUB_STRING_TYPE=<@(SLUB_STRING_TYPE)',
+        'SLUB_LIST_INCLUDE=<@(SLUB_LIST_INCLUDE)',
+        'SLUB_LIST_TYPE=<@(SLUB_LIST_TYPE)',
+        'SLUB_MAP_INCLUDE=<@(SLUB_MAP_INCLUDE)',
+        'SLUB_MAP_TYPE=<@(SLUB_MAP_TYPE)',
+      ],
 
       'include_dirs': [
         './include',
