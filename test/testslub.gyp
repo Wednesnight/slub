@@ -16,15 +16,15 @@
 {
 
   'variables': {
-    'lua_path': './lua_5_1_4',
+    'lua_path': '../lua_5_1_4',
   },
 
   'targets': [
     {
 
-      'target_name': 'libslub',
+      'target_name': 'testslub',
 
-      'type': 'static_library',
+      'type': 'executable',
 
       'default_configuration': 'Debug',
 
@@ -89,17 +89,18 @@
 
       },
 
+      'dependencies': [
+        '<@(lua_path)/lua.gyp:liblua',
+        '../slub.gyp:libslub',
+      ],
+
       'include_dirs': [
-        './include',
+        '../include',
         '<@(lua_path)/include',
       ],
 
       'sources': [
-
-        './src/slub/call.cpp',
-        './src/slub/clazz.cpp',
-        './src/slub/function.cpp',
-        './src/slub/registry.cpp',
+        'main.cpp',
       ],
 
       'conditions': [
@@ -109,7 +110,6 @@
           'defines': [
             'WIN32',
             'UNICODE',
-            '_LIB',
           ],
 
         }],
