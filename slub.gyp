@@ -90,6 +90,7 @@
       },
 
       'dependencies': [
+        '<@(lua_path)/lua.gyp:liblua',
         'libslub',
       ],
 
@@ -185,10 +186,6 @@
         },
 
       },
-
-      'dependencies': [
-        '<@(lua_path)/lua.gyp:liblua',
-      ],
 
       'include_dirs': [
         './include',
