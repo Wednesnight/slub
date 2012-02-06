@@ -24,6 +24,7 @@
     'SLUB_LIST_TYPE%'      : 'std::list',
     'SLUB_MAP_INCLUDE%'    : '<map>',
     'SLUB_MAP_TYPE%'       : 'std::map',
+    'SLUB_INCLUDES%'       : '',
   },
 
   'targets': [
@@ -105,7 +106,19 @@
         'SLUB_MAP_TYPE=<@(SLUB_MAP_TYPE)',
       ],
 
+      'all_dependent_settings': {
+        'defines': [
+          'SLUB_STRING_INCLUDE=<@(SLUB_STRING_INCLUDE)',
+          'SLUB_STRING_TYPE=<@(SLUB_STRING_TYPE)',
+          'SLUB_LIST_INCLUDE=<@(SLUB_LIST_INCLUDE)',
+          'SLUB_LIST_TYPE=<@(SLUB_LIST_TYPE)',
+          'SLUB_MAP_INCLUDE=<@(SLUB_MAP_INCLUDE)',
+          'SLUB_MAP_TYPE=<@(SLUB_MAP_TYPE)',
+        ],
+      },
+
       'include_dirs': [
+        '<@(SLUB_INCLUDES)',
         './include',
         '<@(lua_path)/include',
       ],
