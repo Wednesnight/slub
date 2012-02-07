@@ -23,9 +23,7 @@
     {
 
       'target_name': 'testslub',
-
       'type': 'executable',
-
       'default_configuration': 'Debug',
 
 # TODO: re-check need for manual definition
@@ -91,7 +89,7 @@
 
       'dependencies': [
         '<@(lua_path)/lua.gyp:liblua',
-        '../slub.gyp:libslub',
+        '../slub.gyp:slub',
       ],
 
       'include_dirs': [
