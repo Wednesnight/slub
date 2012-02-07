@@ -20,8 +20,79 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "slub_lua.h"
 #include "converter.h"
+#include "reference.h"
 
 namespace slub {
+
+  struct lua_function_base {
+  protected:
+    reference r;
+  public:
+    lua_function_base(const reference& r) : r(r) {}
+    void operator=(const reference& r) { this->r = r; }
+  };
+
+  template<typename ret, typename arg1, typename arg2>
+  struct lua_function : public lua_function_base {
+    lua_function(const reference& r) : lua_function_base(r) {}
+    ret operator()(arg1 a1, arg2 a2) {
+      return r.operator()<ret, arg1, arg2>(a1, a2);
+    }
+  };
+
+  template<typename arg1, typename arg2>
+  struct lua_function<void, arg1, arg2> : public lua_function_base {
+    void operator()(arg1 a1, arg2 a2) {
+      r.operator()<arg1, arg2>(a1, a2);
+    }
+  };
+  
+  template<typename ret, typename arg1>
+  struct lua_function<ret, arg1, empty> : public lua_function_base {
+    ret operator()(arg1 a1) {
+      return r.operator()<ret, arg1>(a1);
+    }
+  };
+  
+  template<typename arg1>
+  struct lua_function<void, arg1, empty> : public lua_function_base {
+    void operator()(arg1 a1) {
+      r.operator()<void, arg1>(a1);
+    }
+  };
+  
+  template<typename ret>
+  struct lua_function<ret, empty, empty> : public lua_function_base {
+    ret operator()() {
+      return r.operator()<ret>();
+    }
+  };
+  
+  template<>
+  struct lua_function<void, empty, empty> : public lua_function_base {
+    void operator()() {
+      r.operator()();
+    }
+  };
+
+
+
+  template<typename ret, typename arg1, typename arg2>
+  static ret call(const reference& r, arg1 a1, arg2 a2) {
+    return lua_function<ret, arg1, arg2>(r)(a1, a2);
+  }
+  
+  template<typename ret, typename arg1>
+  static ret call(const reference& r, arg1 a1) {
+    return lua_function<ret, arg1, empty>(r)(a1);
+  }
+  
+  template<typename ret>
+  static ret call(const reference& r) {
+    return lua_function<ret, empty, empty>(r)();
+  }
+
+
 
   struct abstract_function_wrapper {
     virtual bool check(lua_State* L) = 0;
