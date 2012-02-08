@@ -15,10 +15,6 @@
 #
 {
 
-  'variables': {
-    'lua_path': '../lua_5_1_4',
-  },
-
   'targets': [
     {
 
@@ -88,13 +84,8 @@
       },
 
       'dependencies': [
-        '<@(lua_path)/lua.gyp:liblua',
+        '../lua_5_1_4/lua.gyp:lua',
         '../slub.gyp:slub',
-      ],
-
-      'include_dirs': [
-        '../include',
-        '<@(lua_path)/include',
       ],
 
       'sources': [

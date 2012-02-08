@@ -162,7 +162,8 @@ namespace slub {
   protected:
     
     friend struct globals;
-    
+    friend struct table;
+
     lua_State* state;
     int index;
     

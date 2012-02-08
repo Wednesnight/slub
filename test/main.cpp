@@ -16,6 +16,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <iostream>
 #include <iosfwd>
+#include <iterator>
 
 #include <slub/slub.h>
 #include <slub/globals.h>
@@ -148,4 +149,82 @@ int main (int argc, char * const argv[]) {
   lua_close(L);
 
   return 0;
+}
+
+
+namespace slub {
+
+  struct table {
+
+  private:
+
+    const reference& ref;
+
+  public:
+
+    table(const reference& ref)
+    : ref(ref)
+    {
+    }
+
+    string concat(string sep = "", int offset = 1, int length = -1) {
+      if (length == -1) {
+        length = maxn();
+      }
+
+      string result;
+      while (offset <= length) {
+        //
+        ++offset;
+      }
+      return result;
+    }
+
+    void insert(const reference& value, int index = -1) {
+      if (index == -1) {
+        index = maxn()+1;
+      }
+
+      ref.push();
+      int table_index = lua_gettop(ref.state);
+
+      int pos = maxn();
+      int offset = index;
+      while (pos >= offset) {
+        lua_rawgeti(ref.state, table_index, pos);
+        lua_rawseti(ref.state, table_index, pos+1);
+        --pos;
+      }
+
+      lua_pushinteger(ref.state, index);
+      value.push();
+      lua_settable(ref.state, table_index);
+
+      ref.pop();
+    }
+
+    size_t maxn() {
+      ref.push();
+      size_t result = lua_objlen(ref.state, lua_gettop(ref.state));
+      ref.pop();
+      return result;
+    }
+
+  };
+
+  struct debugger {
+
+  private:
+
+    lua_State* state;
+
+  public:
+
+    debugger(lua_State* state) : state(state) {
+    }
+
+    //
+
+  };
+
 }
