@@ -60,6 +60,19 @@ namespace slub {
     
   };
   
+  template<typename T>
+  struct constructor<T, lua_State*, empty, empty, empty> : public abstract_constructor {
+    
+    bool check(lua_State* L) {
+      return lua_gettop(L) == 1;
+    }
+    
+    void* _newInstance(lua_State* L) {
+      return new T(L);
+    }
+    
+  };
+  
   template<typename T, typename arg1>
   struct constructor<T, arg1, empty, empty, empty> : public abstract_constructor {
     
@@ -69,6 +82,19 @@ namespace slub {
     
     void* _newInstance(lua_State* L) {
       return new T(converter<arg1>::get(L, -1));
+    }
+    
+  };
+  
+  template<typename T, typename arg1>
+  struct constructor<T, arg1, lua_State*, empty, empty> : public abstract_constructor {
+    
+    bool check(lua_State* L) {
+      return lua_gettop(L) == 2 && converter<arg1>::check(L, -1);
+    }
+    
+    void* _newInstance(lua_State* L) {
+      return new T(converter<arg1>::get(L, -1), L);
     }
     
   };
@@ -86,6 +112,19 @@ namespace slub {
     
   };
   
+  template<typename T, typename arg1, typename arg2>
+  struct constructor<T, arg1, arg2, lua_State*, empty> : public abstract_constructor {
+    
+    bool check(lua_State* L) {
+      return lua_gettop(L) == 3 && converter<arg1>::check(L, -2) && converter<arg2>::check(L, -1);
+    }
+    
+    void* _newInstance(lua_State* L) {
+      return new T(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
+    }
+    
+  };
+  
   template<typename T, typename arg1, typename arg2, typename arg3>
   struct constructor<T, arg1, arg2, arg3, empty> : public abstract_constructor {
     
@@ -95,6 +134,19 @@ namespace slub {
     
     void* _newInstance(lua_State* L) {
       return new T(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
+    }
+    
+  };
+  
+  template<typename T, typename arg1, typename arg2, typename arg3>
+  struct constructor<T, arg1, arg2, arg3, lua_State*> : public abstract_constructor {
+    
+    bool check(lua_State* L) {
+      return lua_gettop(L) == 4 && converter<arg1>::check(L, -3) && converter<arg2>::check(L, -2) && converter<arg3>::check(L, -1);
+    }
+    
+    void* _newInstance(lua_State* L) {
+      return new T(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
     }
     
   };
