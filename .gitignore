@@ -3,3 +3,11 @@
 xcuserdata
 slub.xcodeproj
 test/testslub.xcodeproj
+Makefile
+out
+slub.Makefile
+slub.target.mk
+test/testslub.Makefile
+test/testslub.target.mk
+lua_5_1_4/lua.Makefile
+lua_5_1_4/lua.target.mk
