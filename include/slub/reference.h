@@ -49,15 +49,22 @@ namespace slub {
     }
     
     ~reference() {
-      if (state != NULL) {
+      if (state != NULL && lua_status(state) == 0) {
         luaL_unref(state, LUA_REGISTRYINDEX, index);
       }
+      state = NULL;
+      index = LUA_REFNIL;
     }
     
     virtual void operator=(const reference& r) {
       this->state = r.state;
-      r.push();
-      this->index = luaL_ref(state, LUA_REGISTRYINDEX);
+      if (r.index != LUA_REFNIL) {
+        r.push();
+        this->index = luaL_ref(state, LUA_REGISTRYINDEX);
+      }
+      else {
+        this->index = LUA_REFNIL;
+      }
     }
     
     int type() const {

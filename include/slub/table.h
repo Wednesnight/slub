@@ -46,25 +46,38 @@ namespace slub {
     
   public:
 
+    table_entry(const table_entry& r) {
+      this->operator=(r);
+    }
+    
     void operator=(const table_entry& r) {
       reference::operator=(r);
       key = r.key;
       parent = r.parent;
     }
 
+    template<typename valueType>
+    void operator=(valueType value) {
+      converter<reference>::push(state, parent);
+      int table_index = lua_gettop(state);
+      converter<reference>::push(state, key);
+      converter<valueType>::push(state, value);
+      lua_settable(state, table_index);
+      lua_pop(state, 1);
+    }
+    
     template<typename indexType>
     table_entry operator[](indexType index) {
-      push();
-      int table_index = lua_gettop(state);
+      int table_index = push();
       converter<indexType>::push(state, index);
-//      lua_pushvalue(state, lua_gettop(state));
+      lua_pushvalue(state, lua_gettop(state));
       lua_gettable(state, table_index);
       table_entry result(state);
-//      result.key = reference(state);
+      result.key = reference(state);
       result.parent = reference(state);
       return result;
     }
-    
+
   };
   
   struct table : public table_entry {

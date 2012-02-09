@@ -99,8 +99,8 @@ int main (int argc, char * const argv[]) {
     std::cout << _G["math"]["abs"].typeName() << std::endl;
     std::cout << slub::call<int, int>(_G["math"]["abs"], -2) << std::endl;
 
-//    _G["foobarbaz"] = "argrml";
-//    std::cout << _G["foobarbaz"].cast<std::string>() << std::endl;
+    _G["foobarbaz"] = "argrml";
+    std::cout << _G["foobarbaz"].cast<std::string>() << std::endl;
   }
 
   slub::package enum_ = slub::package(L, "enum");

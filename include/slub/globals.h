@@ -47,10 +47,10 @@ namespace slub {
     template<typename indexType>
     table_entry operator[](indexType index) {
       converter<indexType>::push(state, index);
-//      lua_pushvalue(state, lua_gettop(state));
+      lua_pushvalue(state, lua_gettop(state));
       lua_gettable(state, LUA_GLOBALSINDEX);
       table_entry result(state);
-//      result.key = reference(state);
+      result.key = reference(state);
       result.parent = reference(state, LUA_GLOBALSINDEX);
       return result;
     }
