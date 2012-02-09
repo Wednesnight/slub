@@ -32,7 +32,7 @@ namespace slub {
     void operator=(const reference& ref) { this->ref = ref; }
   };
 
-  template<typename ret, typename arg1, typename arg2, typename arg3>
+  template<typename ret = void, typename arg1 = empty, typename arg2 = empty, typename arg3 = empty>
   struct lua_function : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2, arg3 a3) {
