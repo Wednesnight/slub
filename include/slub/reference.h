@@ -54,7 +54,7 @@ namespace slub {
       }
     }
     
-    void operator=(const reference& r) {
+    virtual void operator=(const reference& r) {
       this->state = r.state;
       r.push();
       this->index = luaL_ref(state, LUA_REGISTRYINDEX);
@@ -81,12 +81,11 @@ namespace slub {
       return state == NULL || index == LUA_REFNIL || type() == LUA_TNIL;
     }
 
-  protected:
+    lua_State* getState() const {
+      return state;
+    }
 
-    friend struct globals;
-    friend struct table;
-    template<typename ret, typename arg1, typename arg2, typename arg3>
-    friend struct lua_function;
+  protected:
 
     lua_State* state;
     int index;

@@ -36,13 +36,13 @@ namespace slub {
   struct lua_function : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2, arg3 a3) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      converter<arg2>::push(ref.state, a2);
-      converter<arg3>::push(ref.state, a3);
-      slub::call(ref.state, 3, 1);
-      ret r = converter<ret>::get(ref.state, -1);
-      lua_pop(ref.state, 1);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      converter<arg2>::push(ref.getState(), a2);
+      converter<arg3>::push(ref.getState(), a3);
+      slub::call(ref.getState(), 3, 1);
+      ret r = converter<ret>::get(ref.getState(), -1);
+      lua_pop(ref.getState(), 1);
       return r;
     }
   };
@@ -51,11 +51,11 @@ namespace slub {
   struct lua_function<void, arg1, arg2, arg3> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2, arg3 a3) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      converter<arg2>::push(ref.state, a2);
-      converter<arg2>::push(ref.state, a3);
-      slub::call(ref.state, 3, 0);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      converter<arg2>::push(ref.getState(), a2);
+      converter<arg2>::push(ref.getState(), a3);
+      slub::call(ref.getState(), 3, 0);
     }
   };
   
@@ -63,12 +63,12 @@ namespace slub {
   struct lua_function<ret, arg1, arg2, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      converter<arg2>::push(ref.state, a2);
-      slub::call(ref.state, 2, 0);
-      ret r = converter<ret>::get(ref.state, -1);
-      lua_pop(ref.state, 1);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      converter<arg2>::push(ref.getState(), a2);
+      slub::call(ref.getState(), 2, 0);
+      ret r = converter<ret>::get(ref.getState(), -1);
+      lua_pop(ref.getState(), 1);
       return r;
     }
   };
@@ -77,10 +77,10 @@ namespace slub {
   struct lua_function<void, arg1, arg2, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      converter<arg2>::push(ref.state, a2);
-      slub::call(ref.state, 2, 0);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      converter<arg2>::push(ref.getState(), a2);
+      slub::call(ref.getState(), 2, 0);
     }
   };
   
@@ -88,11 +88,11 @@ namespace slub {
   struct lua_function<ret, arg1, empty, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      slub::call(ref.state, 1, 1);
-      ret r = converter<ret>::get(ref.state, -1);
-      lua_pop(ref.state, 1);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      slub::call(ref.getState(), 1, 1);
+      ret r = converter<ret>::get(ref.getState(), -1);
+      lua_pop(ref.getState(), 1);
       return r;
     }
   };
@@ -101,9 +101,9 @@ namespace slub {
   struct lua_function<void, arg1, empty, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1) {
-      ref.push();
-      converter<arg1>::push(ref.state, a1);
-      slub::call(ref.state, 1, 0);
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      slub::call(ref.getState(), 1, 0);
     }
   };
   
@@ -111,10 +111,10 @@ namespace slub {
   struct lua_function<ret, empty, empty, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()() {
-      ref.push();
-      slub::call(ref.state, 0, 1);
-      ret r = converter<ret>::get(ref.state, -1);
-      lua_pop(ref.state, 1);
+      converter<reference>::push(ref.getState(), ref);
+      slub::call(ref.getState(), 0, 1);
+      ret r = converter<ret>::get(ref.getState(), -1);
+      lua_pop(ref.getState(), 1);
       return r;
     }
   };
@@ -123,8 +123,8 @@ namespace slub {
   struct lua_function<void, empty, empty, empty> : public lua_function_base {
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()() {
-      ref.push();
-      slub::call(ref.state, 0, 0);
+      converter<reference>::push(ref.getState(), ref);
+      slub::call(ref.getState(), 0, 0);
     }
   };
 

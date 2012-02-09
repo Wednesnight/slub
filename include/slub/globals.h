@@ -19,12 +19,12 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "config.h"
 #include "slub_lua.h"
-#include "reference.h"
+#include "table.h"
 
 namespace slub {
 
   struct globals {
-    
+
     globals(lua_State* state) : state(state) {
     }
     
@@ -44,9 +44,14 @@ namespace slub {
       return lua_typename(state, type());
     }
     
-    reference operator[](const string& name) const {
-      lua_getglobal(state, name.c_str());
-      reference result(state);
+    template<typename indexType>
+    table_entry operator[](indexType index) {
+      converter<indexType>::push(state, index);
+//      lua_pushvalue(state, lua_gettop(state));
+      lua_gettable(state, LUA_GLOBALSINDEX);
+      table_entry result(state);
+//      result.key = reference(state);
+      result.parent = reference(state, LUA_GLOBALSINDEX);
       return result;
     }
     
