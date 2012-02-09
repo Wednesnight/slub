@@ -47,7 +47,6 @@ namespace slub {
     reference operator[](const string& name) const {
       lua_getglobal(state, name.c_str());
       reference result(state);
-      result.name = name;
       return result;
     }
     

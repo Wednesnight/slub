@@ -23,6 +23,130 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "foo.h"
 
+namespace slub {
+  
+  struct table {
+    
+  private:
+    
+    const reference& ref;
+    
+  public:
+    
+    table(const reference& ref)
+    : ref(ref)
+    {
+    }
+    
+    string concat(string sep = "", int offset = 1, int length = -1) {
+      if (length == -1) {
+        length = maxn();
+      }
+      
+      string result;
+      while (offset <= length) {
+        result += (result.empty() ? "" : sep) + this->operator[](offset++).cast<string>();
+      }
+      return result;
+    }
+    
+    void insert(const reference& value, int index = -1) {
+      if (index == -1) {
+        index = maxn()+1;
+      }
+      
+      ref.push();
+      int table_index = lua_gettop(ref.state);
+      
+      int pos = maxn();
+      int offset = index;
+      while (pos >= offset) {
+        lua_rawgeti(ref.state, table_index, pos);
+        lua_rawseti(ref.state, table_index, pos+1);
+        --pos;
+      }
+      
+      lua_pushinteger(ref.state, index);
+      value.push();
+      lua_settable(ref.state, table_index);
+      
+      ref.pop();
+    }
+    
+    size_t maxn() {
+      ref.push();
+      size_t result = lua_objlen(ref.state, lua_gettop(ref.state));
+      ref.pop();
+      return result;
+    }
+    
+    reference remove(int index = -1) {
+      if (index == -1) {
+        index = maxn();
+      }
+      
+      ref.push();
+      int table_index = lua_gettop(ref.state);
+      
+      lua_pushinteger(ref.state, index);
+      lua_gettable(ref.state, table_index);
+      reference result(ref.state);
+      
+      int pos = index;
+      int length = maxn();
+      while (pos < length) {
+        lua_rawgeti(ref.state, table_index, pos+1);
+        lua_rawseti(ref.state, table_index, pos);
+        --pos;
+      }
+      
+      lua_pushnil(ref.state);
+      lua_rawseti(ref.state, table_index, maxn());
+      
+      ref.pop();
+      return result;
+    }
+    
+    /*
+     * TODO: table.sort (table [, comp])
+     */
+    
+    template<typename indexType>
+    reference operator[](indexType index) {
+      ref.push();
+      int table_index = lua_gettop(ref.state);
+      converter<indexType>::push(ref.state, index);
+      lua_pushvalue(ref.state, lua_gettop(ref.state));
+      lua_gettable(ref.state, table_index);
+      reference result(ref.state);
+//      result.key = reference(ref.state);
+//      if (ref.path.size() > 0) {
+//        result.path.insert(result.path.begin(), ref.path.begin(), ref.path.end());
+//      }
+//      result.path.push_back(ref.key);
+      ref.pop();
+      return result;
+    }
+    
+  };
+  
+  struct debugger {
+    
+  private:
+    
+    lua_State* state;
+    
+  public:
+    
+    debugger(lua_State* state) : state(state) {
+    }
+    
+    //
+    
+  };
+  
+}
+
 using namespace slub;
 
 void testing0() {
@@ -67,13 +191,13 @@ int main (int argc, char * const argv[]) {
   luaopen_debug(L);
 
   {
-    globals _G = globals(L);
+    globals _G(L);
     std::cout << _G["math"].typeName() << std::endl;
-    std::cout << _G["math"]["abs"].typeName() << std::endl;
-    std::cout << _G["math"]["abs"].operator()<int, int>(-2) << std::endl;
+    std::cout << table(_G["math"])["abs"].typeName() << std::endl;
+    std::cout << slub::call<int, int>(table(_G["math"])["abs"], -2) << std::endl;
 
-    _G["foobarbaz"] = "argrml";
-    std::cout << _G["foobarbaz"].cast<std::string>() << std::endl;
+//    _G["foobarbaz"] = "argrml";
+//    std::cout << _G["foobarbaz"].cast<std::string>() << std::endl;
   }
 
   slub::package enum_ = slub::package(L, "enum");
@@ -145,86 +269,18 @@ int main (int argc, char * const argv[]) {
     std::cout << lua_tostring(L, -1) << std::endl;
   }
 
+  const char* f = "";
+  int res = luaL_loadbuffer(L, f, strlen(f), "replace_callback");
+  std::cout << "compile: " << res << std::endl;
+  if (res == 0) {
+    std::cout << "compile OK" << std::endl;
+    reference cb(L);
+    lua_function<string, string, string, reference> func = table(globals(L)["string"])["gsub"];
+    std::cout << func("foo bar figgn", "figgn", cb) << std::endl;
+  }
+
   lua_gc(L, LUA_GCCOLLECT, 0);
   lua_close(L);
 
   return 0;
-}
-
-
-namespace slub {
-
-  struct table {
-
-  private:
-
-    const reference& ref;
-
-  public:
-
-    table(const reference& ref)
-    : ref(ref)
-    {
-    }
-
-    string concat(string sep = "", int offset = 1, int length = -1) {
-      if (length == -1) {
-        length = maxn();
-      }
-
-      string result;
-      while (offset <= length) {
-        //
-        ++offset;
-      }
-      return result;
-    }
-
-    void insert(const reference& value, int index = -1) {
-      if (index == -1) {
-        index = maxn()+1;
-      }
-
-      ref.push();
-      int table_index = lua_gettop(ref.state);
-
-      int pos = maxn();
-      int offset = index;
-      while (pos >= offset) {
-        lua_rawgeti(ref.state, table_index, pos);
-        lua_rawseti(ref.state, table_index, pos+1);
-        --pos;
-      }
-
-      lua_pushinteger(ref.state, index);
-      value.push();
-      lua_settable(ref.state, table_index);
-
-      ref.pop();
-    }
-
-    size_t maxn() {
-      ref.push();
-      size_t result = lua_objlen(ref.state, lua_gettop(ref.state));
-      ref.pop();
-      return result;
-    }
-
-  };
-
-  struct debugger {
-
-  private:
-
-    lua_State* state;
-
-  public:
-
-    debugger(lua_State* state) : state(state) {
-    }
-
-    //
-
-  };
-
 }
