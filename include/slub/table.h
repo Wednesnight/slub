@@ -20,8 +20,11 @@
 #include "config.h"
 #include "reference.h"
 #include "slub_lua.h"
+#include "globals.h"
 
 namespace slub {
+
+  struct globals;
 
   struct table_entry : public reference {
     
@@ -84,9 +87,25 @@ namespace slub {
 
   };
   
+  template<>
+  struct converter<table_entry> : converter<reference> {};
+  
+  template<>
+  struct converter<table_entry&> : converter<reference> {};
+  
+  template<>
+  struct converter<const table_entry&> : converter<reference> {};
+  
   struct table : public table_entry {
     
   public:
+    
+    table(lua_State* state)
+    : table_entry()
+    {
+      lua_newtable(state);
+      *this = reference(state);
+    }
     
     table(const reference& r)
     : table_entry(r)
@@ -100,12 +119,37 @@ namespace slub {
       
       string result;
       while (offset <= length) {
-        result += (result.empty() ? "" : sep) + this->operator[](offset++).cast<string>();
+        if (!result.empty()) {
+          result += sep;
+        }
+        reference entry = this->operator[](offset++);
+        converter<reference>::push(state, entry);
+        int index = lua_gettop(state);
+        if (lua_getmetatable(state, index)) {
+          table mt = reference(state);
+          if (mt["__tostring"].type() == LUA_TFUNCTION) {
+            result += call<string, reference>(mt["__tostring"], entry);
+          }
+          else if (lua_isstring(state, index)) {
+            result += lua_tostring(state, index);
+          }
+          else {
+            result += entry.typeName();
+          }
+        }
+        else if (lua_isstring(state, index)) {
+          result += lua_tostring(state, index);
+        }
+        else {
+          result += entry.typeName();
+        }
+        lua_pop(state, 1);
       }
       return result;
     }
     
-    void insert(const reference& value, int index = -1) {
+    template<typename valueType>
+    void insert(valueType value, int index = -1) {
       if (index == -1) {
         index = maxn()+1;
       }
@@ -121,7 +165,7 @@ namespace slub {
       }
       
       lua_pushinteger(state, index);
-      converter<reference>::push(value.getState(), value);
+      converter<valueType>::push(state, value);
       lua_settable(state, table_index);
       
       lua_pop(state, 1);
@@ -164,6 +208,15 @@ namespace slub {
      */
     
   };
+
+  template<>
+  struct converter<table> : converter<reference> {};
+  
+  template<>
+  struct converter<table&> : converter<reference> {};
+  
+  template<>
+  struct converter<const table&> : converter<reference> {};
 
 }
 

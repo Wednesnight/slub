@@ -42,15 +42,14 @@ namespace slub {
   };
   
   reference compile(lua_State* L, const string& chunk, const string& name = "") {
-    if (luaL_loadbuffer(L, chunk.c_str(), chunk.size(), (name.empty() ? chunk.c_str() : name.c_str())) == 0) {
-      return reference(L);
+    string code = "return "+ chunk;
+    if (luaL_loadbuffer(L, code.c_str(), code.size(), (name.empty() ? chunk.c_str() : name.c_str())) == 0) {
+      return call<reference>(reference(L));
     }
     return reference();
   }
   
 }
-
-using namespace slub;
 
 void testing0() {
   std::cout << "testing0()" << std::endl;
@@ -93,8 +92,9 @@ int main (int argc, char * const argv[]) {
   luaopen_math(L);
   luaopen_debug(L);
 
+  slub::globals _G(L);
+
   {
-    globals _G(L);
     std::cout << _G["math"].typeName() << std::endl;
     std::cout << _G["math"]["abs"].typeName() << std::endl;
     std::cout << slub::call<int, int>(_G["math"]["abs"], -2) << std::endl;
@@ -172,11 +172,27 @@ int main (int argc, char * const argv[]) {
     std::cout << lua_tostring(L, -1) << std::endl;
   }
 
-  lua_function<string, string, string, reference> gsub = globals(L)["string"]["gsub"];
+  slub::lua_function<slub::string, slub::string, slub::string, slub::reference> gsub =
+    slub::globals(L)["string"]["gsub"];
   std::cout << gsub("foo bar figgn", "figgn",
-                    slub::compile(L, "local s = ... "
-                                     "print(s) "
-                                     "return \"baz\" ")) << std::endl;
+                    slub::compile(L, "function(s)"
+                                     "  print(s) "
+                                     "  return \"baz\" "
+                                     "end ")) << std::endl;
+
+  slub::table myTable(L);
+  myTable["foo"] = "bar";
+  _G["myTable"] = myTable;
+  myTable["bar"] = "baz";
+  luaL_dostring(L, "for k,v in next,myTable do print(k, v) end");
+
+  myTable.insert("1string");
+  myTable.insert("another");
+  myTable.insert(3);
+  myTable.insert(false);
+  foo f(10);
+  myTable.insert(f);
+  std::cout << myTable.concat(", ") << std::endl;
 
   lua_gc(L, LUA_GCCOLLECT, 0);
   lua_close(L);
