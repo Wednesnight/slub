@@ -174,6 +174,8 @@ namespace slub {
       lua_settable(state, metatable);
       
       lua_pop(state, 2);  // drop metatable and method table
+
+      function("cast", clazz_cast);
     }
 
     template<typename B>

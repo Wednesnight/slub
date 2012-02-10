@@ -46,6 +46,10 @@ namespace slub {
     
   public:
 
+    /*
+     * C++98 requires an accessible copy constructor when binding a reference to
+     * a temporary; was protected
+     */
     table_entry(const table_entry& r) {
       this->operator=(r);
     }
@@ -67,7 +71,7 @@ namespace slub {
     }
     
     template<typename indexType>
-    table_entry operator[](indexType index) {
+    table_entry operator[](indexType index) const {
       int table_index = push();
       converter<indexType>::push(state, index);
       lua_pushvalue(state, lua_gettop(state));
@@ -82,18 +86,14 @@ namespace slub {
   
   struct table : public table_entry {
     
-  private:
-    
-    const reference& ref;
-    
   public:
     
-    table(const reference& ref)
-    : ref(ref)
+    table(const reference& r)
+    : table_entry(r)
     {
     }
     
-    string concat(string sep = "", int offset = 1, int length = -1) {
+    string concat(string sep = "", int offset = 1, int length = -1) const {
       if (length == -1) {
         length = maxn();
       }
@@ -110,28 +110,26 @@ namespace slub {
         index = maxn()+1;
       }
       
-      converter<reference>::push(ref.getState(), ref);
-      int table_index = lua_gettop(ref.getState());
+      int table_index = push();
       
       int pos = maxn();
       int offset = index;
       while (pos >= offset) {
-        lua_rawgeti(ref.getState(), table_index, pos);
-        lua_rawseti(ref.getState(), table_index, pos+1);
+        lua_rawgeti(state, table_index, pos);
+        lua_rawseti(state, table_index, pos+1);
         --pos;
       }
       
-      lua_pushinteger(ref.getState(), index);
+      lua_pushinteger(state, index);
       converter<reference>::push(value.getState(), value);
-      lua_settable(ref.getState(), table_index);
+      lua_settable(state, table_index);
       
-      lua_pop(ref.getState(), 1);
+      lua_pop(state, 1);
     }
     
-    size_t maxn() {
-      converter<reference>::push(ref.getState(), ref);
-      size_t result = lua_objlen(ref.getState(), lua_gettop(ref.getState()));
-      lua_pop(ref.getState(), 1);
+    size_t maxn() const {
+      size_t result = lua_objlen(state, push());
+      lua_pop(state, 1);
       return result;
     }
     
@@ -140,25 +138,24 @@ namespace slub {
         index = maxn();
       }
       
-      converter<reference>::push(ref.getState(), ref);
-      int table_index = lua_gettop(ref.getState());
+      int table_index = push();
       
-      lua_pushinteger(ref.getState(), index);
-      lua_gettable(ref.getState(), table_index);
-      reference result(ref.getState());
+      lua_pushinteger(state, index);
+      lua_gettable(state, table_index);
+      reference result(state);
       
       int pos = index;
       int length = maxn();
       while (pos < length) {
-        lua_rawgeti(ref.getState(), table_index, pos+1);
-        lua_rawseti(ref.getState(), table_index, pos);
+        lua_rawgeti(state, table_index, pos+1);
+        lua_rawseti(state, table_index, pos);
         --pos;
       }
       
-      lua_pushnil(ref.getState());
-      lua_rawseti(ref.getState(), table_index, maxn());
+      lua_pushnil(state);
+      lua_rawseti(state, table_index, maxn());
       
-      lua_pop(ref.getState(), 1);
+      lua_pop(state, 1);
       return result;
     }
     

@@ -28,12 +28,15 @@ namespace slub {
   protected:
     reference ref;
   public:
+    lua_function_base() {}
     lua_function_base(const reference& ref) : ref(ref) {}
     void operator=(const reference& ref) { this->ref = ref; }
+    bool valid() { return ref.type() == LUA_TFUNCTION; }
   };
 
   template<typename ret = void, typename arg1 = empty, typename arg2 = empty, typename arg3 = empty>
   struct lua_function : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2, arg3 a3) {
       converter<reference>::push(ref.getState(), ref);
@@ -49,6 +52,7 @@ namespace slub {
 
   template<typename arg1, typename arg2, typename arg3>
   struct lua_function<void, arg1, arg2, arg3> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2, arg3 a3) {
       converter<reference>::push(ref.getState(), ref);
@@ -61,12 +65,13 @@ namespace slub {
   
   template<typename ret, typename arg1, typename arg2>
   struct lua_function<ret, arg1, arg2, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2) {
       converter<reference>::push(ref.getState(), ref);
       converter<arg1>::push(ref.getState(), a1);
       converter<arg2>::push(ref.getState(), a2);
-      slub::call(ref.getState(), 2, 0);
+      slub::call(ref.getState(), 2, 1);
       ret r = converter<ret>::get(ref.getState(), -1);
       lua_pop(ref.getState(), 1);
       return r;
@@ -75,6 +80,7 @@ namespace slub {
   
   template<typename arg1, typename arg2>
   struct lua_function<void, arg1, arg2, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2) {
       converter<reference>::push(ref.getState(), ref);
@@ -86,6 +92,7 @@ namespace slub {
   
   template<typename ret, typename arg1>
   struct lua_function<ret, arg1, empty, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1) {
       converter<reference>::push(ref.getState(), ref);
@@ -99,6 +106,7 @@ namespace slub {
   
   template<typename arg1>
   struct lua_function<void, arg1, empty, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1) {
       converter<reference>::push(ref.getState(), ref);
@@ -109,6 +117,7 @@ namespace slub {
   
   template<typename ret>
   struct lua_function<ret, empty, empty, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()() {
       converter<reference>::push(ref.getState(), ref);
@@ -121,6 +130,7 @@ namespace slub {
   
   template<>
   struct lua_function<void, empty, empty, empty> : public lua_function_base {
+    lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()() {
       converter<reference>::push(ref.getState(), ref);
@@ -130,6 +140,18 @@ namespace slub {
 
 
 
+  template<typename ret, typename arg1, typename arg2, typename arg3>
+  static inline ret call(const reference& r, arg1 a1, arg2 a2, arg3 a3) {
+    lua_function<ret, arg1, arg2, arg3> f(r);
+    return f(a1, a2, a3);
+  }
+  
+  template<typename arg1, typename arg2, typename arg3>
+  static inline void call(const reference& r, arg1 a1, arg2 a2, arg3 a3) {
+    lua_function<void, arg1, arg2, arg3> f(r);
+    f(a1, a2, a3);
+  }
+  
   template<typename ret, typename arg1, typename arg2>
   static inline ret call(const reference& r, arg1 a1, arg2 a2) {
     lua_function<ret, arg1, arg2, empty> f(r);
