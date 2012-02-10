@@ -26,21 +26,48 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace slub {
 
+  void debugger_hook(lua_State *L, lua_Debug *ar) {
+    if (lua_getinfo(L, "nSlu", ar)) {
+      std::cout << "call: "
+        << (ar->namewhat != 0 ? ar->namewhat + string(" ") : "")
+        << (ar->name != 0 ? ar->name + string(" ") : "")
+        << " (" << ar->what << ")"
+      << std::endl;
+    }
+  }
+
   struct debugger {
-    
+
   private:
-    
+
     lua_State* state;
-    
+    list<string> func_breakpoints;
+
   public:
     
     debugger(lua_State* state) : state(state) {
     }
-    
-    //
-    
+
+    void evaluate(const char* chunk) {
+      luaL_dostring(state, chunk);
+    }
+
+    bool toggleBreakpoint(string symbol) {
+      for (list<string>::iterator iter = func_breakpoints.begin(); iter != func_breakpoints.end(); ++iter) {
+        if (*iter == symbol) {
+          func_breakpoints.erase(iter);
+          return false;
+        }
+      }
+      func_breakpoints.push_back(symbol);
+      if (lua_gethookmask(state) | LUA_MASKCALL) {
+        lua_sethook(state, debugger_hook, LUA_MASKCALL, 0);
+      }
+      return true;
+    }
+
   };
-  
+
   reference compile(lua_State* L, const string& chunk, const string& name = "") {
     string code = "return "+ chunk;
     if (luaL_loadbuffer(L, code.c_str(), code.size(), (name.empty() ? chunk.c_str() : name.c_str())) == 0) {
@@ -91,6 +118,11 @@ int main (int argc, char * const argv[]) {
   luaopen_string(L);
   luaopen_math(L);
   luaopen_debug(L);
+
+  slub::debugger dbg(L);
+  dbg.evaluate("for k,v in next,_G do print(k,v) end");
+  dbg.toggleBreakpoint("trigger_breakpoint");
+  dbg.evaluate("function trigger_breakpoint() end trigger_breakpoint()");
 
   slub::globals _G(L);
 
