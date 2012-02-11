@@ -68,6 +68,30 @@ namespace slub {
 
   };
 
+  struct chunk : public reference {
+
+    chunk(lua_State* state, const string& chunk, const string& name = "")
+    : reference()
+    {
+      string code = "return "+ chunk;
+      if (luaL_loadbuffer(state, code.c_str(), code.size(), (name.empty() ? chunk.c_str() : name.c_str())) == 0) {
+        reference::operator=(call<reference>(reference(state)));
+      }
+    }
+
+    template<typename valueType>
+    void pushValue(valueType value, const string& name) {
+      int index = push();
+      lua_getfenv(state, index);
+      table env = reference(state);
+      env[name] = value;
+      converter<table>::push(state, env);
+      lua_setfenv(state, index);
+      pop();
+    }
+
+  };
+
   reference compile(lua_State* L, const string& chunk, const string& name = "") {
     string code = "return "+ chunk;
     if (luaL_loadbuffer(L, code.c_str(), code.size(), (name.empty() ? chunk.c_str() : name.c_str())) == 0) {
@@ -206,11 +230,18 @@ int main (int argc, char * const argv[]) {
 
   slub::lua_function<slub::string, slub::string, slub::string, slub::reference> gsub =
     slub::globals(L)["string"]["gsub"];
-  std::cout << gsub("foo bar figgn", "figgn",
-                    slub::compile(L, "function(s)"
-                                     "  print(s) "
-                                     "  return \"baz\" "
-                                     "end ")) << std::endl;
+
+  slub::chunk cb(L, "function(s) "
+                    "  print(s) "
+                    "  faz:doStuff() "
+                    "  return \"baz\" "
+                    "end ", "callback");
+
+  foo faz(10);
+  cb.pushValue(faz, "faz");
+
+  std::cout << gsub("foo bar faz", "faz", cb) << std::endl;
+  luaL_dostring(L, "print(type(faz))");
 
   slub::table myTable(L);
   myTable["foo"] = "bar";

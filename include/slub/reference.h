@@ -49,7 +49,7 @@ namespace slub {
     }
     
     ~reference() {
-      if (state != NULL && lua_status(state) == 0) {
+      if (index != LUA_REFNIL && state != NULL && lua_status(state) == 0) {
         luaL_unref(state, LUA_REGISTRYINDEX, index);
       }
       state = NULL;
