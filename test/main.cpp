@@ -129,7 +129,7 @@ enum enm {
 
 int main (int argc, char * const argv[]) {
 
-  baz b(0,0);
+  std::tr1::shared_ptr<baz> b = baz::create(0,0);
   std::cout << typeid(b).name() << std::endl;
   std::cout << typeid(&b).name() << std::endl;
   std::cout << typeid(b.get()).name() << std::endl;
@@ -184,7 +184,9 @@ int main (int argc, char * const argv[]) {
     .div<int, int>()
     .mod<int, int>()
     .pow<int, int>()
-    .unm<int>();
+    .unm<int>()
+    .function("create", (std::tr1::shared_ptr<foo>(*)(int))&foo::create)
+    .function("create", (std::tr1::shared_ptr<foo>(*)(int, int))&foo::create);
 
   if (luaL_dofile(L, "foo.lua")) {
     std::cout << lua_tostring(L, -1) << std::endl;
@@ -193,15 +195,16 @@ int main (int argc, char * const argv[]) {
   slub::clazz<baz>(L, "baz").extends<foo>()
     .constructor<int, int>()
     .method("get", &baz::get)
-    .method("print", &baz::print);
+    .method("print", &baz::print)
+    .function("create", &baz::create);
 
   if (luaL_dostring(L,
-                    "local b = baz(10, 11) "
+                    "local b = baz.create(10, 11) "
                     "print(tostring(b)) "
                     "print(b.bar) "
                     "b:doStuff() "
                     "b:doStuff(100) "
-                    "local f = foo(10) "
+                    "local f = foo.create(10) "
                     "print(f:getFoo(b)) "
                     "b:print(b:get()) ")) {
     std::cout << lua_tostring(L, -1) << std::endl;
@@ -237,7 +240,7 @@ int main (int argc, char * const argv[]) {
                     "  return \"baz\" "
                     "end ", "callback");
 
-  foo faz(10);
+  std::tr1::shared_ptr<foo> faz = foo::create(10);
   cb.pushValue(faz, "faz");
 
   std::cout << gsub("foo bar faz", "faz", cb) << std::endl;
@@ -253,7 +256,7 @@ int main (int argc, char * const argv[]) {
   myTable.insert("another");
   myTable.insert(3);
   myTable.insert(false);
-  foo f(10);
+  std::tr1::shared_ptr<foo> f = foo::create(10);
   myTable.insert(f);
   std::cout << myTable.concat(", ") << std::endl;
 

@@ -14,10 +14,10 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTH
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 
-local f = foo(111)
+local f = foo.create(111)
 print(f)
 
-local f2 = foo(111, 112)
+local f2 = foo.create(111, 112)
 print(f2)
 
 f.bar = 1337

@@ -136,7 +136,16 @@ namespace slub {
     }
     
   };
-  
+
+  template<typename T>
+  struct shared_ptr_holder : public holder_base {
+  private:
+    T s_ptr;
+  public:
+    shared_ptr_holder(const T& s_ptr) : s_ptr(s_ptr) {}
+    void delete_() { s_ptr.reset(); }
+  };
+
   template<typename T>
   struct converter<boost::shared_ptr<T> > {
     
@@ -163,8 +172,9 @@ namespace slub {
           reg = registry::get(*type);
         }
         if (reg != NULL) {
-          wrapper<T*, boost::shared_ptr<T>*>* w = wrapper<T*, boost::shared_ptr<T>*>::create(L, *type);
-          w->holder = new boost::shared_ptr<T>(value);
+          wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>* w =
+            wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>::create(L, *type);
+          w->holder = new shared_ptr_holder<boost::shared_ptr<T> >(value);
           w->ref = value.get();
           w->gc = true;
           luaL_getmetatable(L, reg->getTypeName().c_str());
@@ -209,8 +219,9 @@ namespace slub {
           reg = registry::get(*type);
         }
         if (reg != NULL) {
-          wrapper<T*, std::tr1::shared_ptr<T>*>* w = wrapper<T*, std::tr1::shared_ptr<T>*>::create(L, *type);
-          w->holder = new std::tr1::shared_ptr<T>(value);
+          wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>* w =
+            wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>::create(L, *type);
+          w->holder = new shared_ptr_holder<std::tr1::shared_ptr<T> >(value);
           w->ref = value.get();
           w->gc = true;
           luaL_getmetatable(L, reg->getTypeName().c_str());

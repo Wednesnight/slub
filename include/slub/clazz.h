@@ -33,14 +33,20 @@ namespace slub {
 
   struct deleter {
     template<typename T>
-    static void delete_(T* t) {
-      delete t;
+    static void delete_(wrapper<T*>* w) {
+      if (w->holder != NULL) {
+        w->holder->delete_();
+        delete w->holder;
+      }
+      else {
+        delete w->ref;
+      }
     }
   };
 
   struct null_deleter {
     template<typename T>
-    static void delete_(T* t) {
+    static void delete_(wrapper<T*>* w) {
     }
   };
 
@@ -756,12 +762,7 @@ namespace slub {
     static int gc(lua_State* L) {
       wrapper<T*>* w = static_cast<wrapper<T*>*>(luaL_checkudata(L, 1, registry::get(typeid(T))->getTypeName().c_str()));
       if (w->gc) {
-        if (w->holder != NULL) {
-          D::delete_(w->holder);
-        }
-        else {
-          D::delete_(w->ref);
-        }
+        D::delete_(w);
       }
       else {
         w->ref = NULL;

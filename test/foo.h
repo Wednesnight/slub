@@ -14,6 +14,10 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTH
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#include <tr1/memory>
+
+using namespace std;
+
 struct foo {
   
   int bar;
@@ -88,6 +92,14 @@ struct foo {
     return bar <= f.bar;
   }
 
+  static tr1::shared_ptr<foo> create(int i) {
+    return tr1::shared_ptr<foo>(new foo(i));
+  }
+
+  static tr1::shared_ptr<foo> create(int i, int j) {
+    return tr1::shared_ptr<foo>(new foo(i, j));
+  }
+  
 };
 
 std::ostream& operator<<(std::ostream& s, const foo& f) {
@@ -108,4 +120,8 @@ struct baz : public foo {
     std::cout << "baz::print() -> " << b << std::endl;
   }
 
+  static tr1::shared_ptr<baz> create(int i, int j) {
+    return tr1::shared_ptr<baz>(new baz(i, j));
+  }
+  
 };

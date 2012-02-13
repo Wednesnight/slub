@@ -23,15 +23,20 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace slub {
 
+  struct holder_base {
+    virtual void delete_() = 0;
+  };
+
   template<typename T>
-  struct empty_holder {
+  struct empty_holder : public holder_base {
+    void delete_() {}
   };
 
   struct wrapper_base {
     const std::type_info* type;
   };
 
-  template<typename T, typename H = empty_holder<T>*>
+  template<typename T, typename H = holder_base*>
   struct wrapper : public wrapper_base {
     H holder;
     T ref;
