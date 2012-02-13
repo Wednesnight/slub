@@ -139,11 +139,8 @@ namespace slub {
 
   template<typename T>
   struct shared_ptr_holder : public holder_base {
-  private:
     T s_ptr;
-  public:
     shared_ptr_holder(const T& s_ptr) : s_ptr(s_ptr) {}
-    void delete_() { s_ptr.reset(); }
   };
 
   template<typename T>
@@ -156,8 +153,9 @@ namespace slub {
     static boost::shared_ptr<T>& get(lua_State* L, int index) {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
-        wrapper<T*, boost::shared_ptr<T>*>* w = static_cast<wrapper<T*, boost::shared_ptr<T>*>*>(converter<T>::checkudata(L, index));
-        return *(w->holder);
+        wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>* w =
+          static_cast<wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>*>(converter<T>::checkudata(L, index));
+        return w->holder->s_ptr;
       }
       throw std::runtime_error("trying to use unregistered type");
     }
@@ -203,8 +201,9 @@ namespace slub {
     static std::tr1::shared_ptr<T>& get(lua_State* L, int index) {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
-        wrapper<T*, std::tr1::shared_ptr<T>*>* w = static_cast<wrapper<T*, std::tr1::shared_ptr<T>*>*>(converter<T>::checkudata(L, index));
-        return *(w->holder);
+        wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>* w =
+          static_cast<wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>*>(converter<T>::checkudata(L, index));
+        return w->holder->s_ptr;
       }
       throw std::runtime_error("trying to use unregistered type");
     }

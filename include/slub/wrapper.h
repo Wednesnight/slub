@@ -24,12 +24,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace slub {
 
   struct holder_base {
-    virtual void delete_() = 0;
-  };
-
-  template<typename T>
-  struct empty_holder : public holder_base {
-    void delete_() {}
+    virtual ~holder_base() {}
   };
 
   struct wrapper_base {

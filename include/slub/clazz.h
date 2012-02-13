@@ -35,7 +35,6 @@ namespace slub {
     template<typename T>
     static void delete_(wrapper<T*>* w) {
       if (w->holder != NULL) {
-        w->holder->delete_();
         delete w->holder;
       }
       else {
