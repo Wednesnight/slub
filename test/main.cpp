@@ -260,6 +260,10 @@ int main (int argc, char * const argv[]) {
   myTable.insert(f);
   std::cout << myTable.concat(", ") << std::endl;
 
+  slub::reference nil;
+  _G["nilvalue"] = nil;
+  luaL_dostring(L, "print(\"type(nilvalue): \"..type(nilvalue))");
+
   lua_gc(L, LUA_GCCOLLECT, 0);
   lua_close(L);
 

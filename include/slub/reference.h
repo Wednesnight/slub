@@ -68,24 +68,32 @@ namespace slub {
     }
     
     int type() const {
-      int result = lua_type(state, push());
-      pop();
+      int result = LUA_TNIL;
+      if (state != NULL && index != LUA_REFNIL) {
+        result = lua_type(state, push());
+        pop();
+      }
       return result;
     }
     
     string typeName() const {
+      // state can be NULL since it is not used in lua_typename()
       return lua_typename(state, type());
     }
     
     template<typename T>
     T cast() const {
+      if (state == NULL || index == LUA_REFNIL) {
+        throw std::runtime_error("trying to cast a nil value");
+      }
       T result = converter<T>::get(state, push());
       pop();
       return result;
     }
 
     bool isNil() {
-      return state == NULL || index == LUA_REFNIL || type() == LUA_TNIL;
+      return state == NULL || index == LUA_REFNIL || type() == LUA_TNIL ||
+        type() == LUA_TNONE;
     }
 
     lua_State* getState() const {
@@ -98,11 +106,30 @@ namespace slub {
     int index;
 
     int push() const {
-      lua_rawgeti(state, LUA_REGISTRYINDEX, index);
+      return push(state);
+    }
+
+    int push(lua_State* state) const {
+      if (state == NULL && index == LUA_REFNIL) {
+        throw std::runtime_error("trying to push a nil value");
+      }
+      if (index != LUA_REFNIL) {
+        lua_rawgeti(state, LUA_REGISTRYINDEX, index);
+      }
+      else {
+        lua_pushnil(state);
+      }
       return lua_gettop(state);
     }
 
     void pop() const {
+      pop(state);
+    }
+
+    void pop(lua_State* state) const {
+      if (state == NULL && index == LUA_REFNIL) {
+        throw std::runtime_error("trying to pop a nil value");
+      }
       lua_pop(state, 1);
     }
 
@@ -121,7 +148,7 @@ namespace slub {
     }
     
     static int push(lua_State* L, const reference& ref) {
-      ref.push();
+      ref.push(L);
       return 1;
     }
     
