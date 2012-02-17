@@ -22,12 +22,12 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace slub {
 
-  std::pair<int, int> abstract_clazz::construct(lua_State * state, registry * reg, char const * name, int target)
+  std::pair<int, int> abstract_clazz::construct(lua_State * state, registry * reg, char const * name, char const * fqname, int target)
   {
     lua_newtable(state);
     int methods = lua_gettop(state);
     
-    luaL_newmetatable(state, name);
+    luaL_newmetatable(state, fqname);
     int metatable = lua_gettop(state);
     
     // store method table in globals so that

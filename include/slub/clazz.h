@@ -61,7 +61,7 @@ namespace slub {
     static int callOperator(lua_State* L);
 
   protected:
-    std::pair<int, int> construct(lua_State * state, registry * reg, char const * name, int target);
+    std::pair<int, int> construct(lua_State * state, registry * reg, char const * name, char const * fqname, int target);
     void add_symbols(lua_State * state, registry * reg, int methods, int metatable);
   };
 
@@ -81,7 +81,7 @@ namespace slub {
     {
       reg = registry::registerType<T>(this->name);
 
-      std::pair<int, int> tables = construct(state, reg, this->name.c_str(), target);
+      std::pair<int, int> tables = construct(state, reg, name.c_str(), this->name.c_str(), target);
       int methods = tables.first;
       int metatable = tables.second;
 
