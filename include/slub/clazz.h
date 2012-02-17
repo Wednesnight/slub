@@ -29,6 +29,8 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "slub_lua.h"
 #include "wrapper.h"
 
+#include <utility>
+
 namespace slub {
 
   struct deleter {
@@ -57,6 +59,10 @@ namespace slub {
     
     static int callMethod(lua_State* L);
     static int callOperator(lua_State* L);
+
+  protected:
+    std::pair<int, int> construct(lua_State * state, registry * reg, char const * name, int target);
+    void add_symbols(lua_State * state, registry * reg, int methods, int metatable);
   };
 
   template<typename T, typename D = deleter>
@@ -73,113 +79,25 @@ namespace slub {
     clazz(lua_State* L, const string& name, const string& prefix = "", int target = -1)
     : state(L), name(prefix.size() > 0 ? prefix +"."+ name : name)
     {
-
       reg = registry::registerType<T>(this->name);
 
-      lua_newtable(state);
-      int methods = lua_gettop(state);
-      
-      luaL_newmetatable(state, this->name.c_str());
-      int metatable = lua_gettop(state);
-      
-      // store method table in globals so that
-      // scripts can add functions written in Lua.
-      lua_pushvalue(state, methods);
-      lua_setfield(state, target != -1 ? target : LUA_GLOBALSINDEX, name.c_str());
-      
-      lua_pushliteral(state, "__metatable");
-      lua_pushvalue(state, methods);
-      lua_settable(state, metatable);  // hide metatable from Lua getmetatable()
-      
+      std::pair<int, int> tables = construct(state, reg, this->name.c_str(), target);
+      int methods = tables.first;
+      int metatable = tables.second;
+
       lua_newtable(state);                // mt for method table
       int mt = lua_gettop(state);
       lua_pushliteral(state, "__call");
       lua_pushcfunction(state, call);
       lua_settable(state, mt);            // mt.__call = ctor
       lua_setmetatable(state, methods);
-      
+    
       lua_pushliteral(state, "__gc");
       lua_pushcfunction(state, gc);
       lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__index");
-      lua_pushlightuserdata(state, reg);
-      lua_pushcclosure(state, index, 1);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__newindex");
-      lua_pushlightuserdata(state, reg);
-      lua_pushcclosure(state, newindex, 1);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__eq");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__eq");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__lt");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__lt");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__le");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__le");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__tostring");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__tostring");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__add");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__add");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__sub");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__sub");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__mul");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__mul");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__div");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__div");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__mod");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__mod");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__pow");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__pow");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pushliteral(state, "__unm");
-      lua_pushlightuserdata(state, reg);
-      lua_pushstring(state, "__unm");
-      lua_pushcclosure(state, callOperator, 2);
-      lua_settable(state, metatable);
-      
-      lua_pop(state, 2);  // drop metatable and method table
 
+      add_symbols(state, reg, methods, metatable);
+ 
       function("cast", clazz_cast);
     }
 
