@@ -20,7 +20,7 @@
 #include "config.h"
 #include "reference.h"
 #include "slub_lua.h"
-#include "globals.h"
+//#include "globals.h"
 
 namespace slub {
 
