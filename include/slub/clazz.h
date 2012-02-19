@@ -68,37 +68,14 @@ namespace slub {
   template<typename T, typename D = deleter>
   struct clazz : public abstract_clazz {
 
-    lua_State* state;
-    string name;
-    registry* reg;
-
-    static T* clazz_cast(const reference& ref) {
-      return ref.cast<T*>();
+    clazz(lua_State* L)
+    {
+      init(L, typeid(T).name(), "slub.invisible", LUA_REGISTRYINDEX);
     }
 
     clazz(lua_State* L, const string& name, const string& prefix = "", int target = -1)
-    : state(L), name(prefix.size() > 0 ? prefix +"."+ name : name)
     {
-      reg = registry::registerType<T>(this->name);
-
-      std::pair<int, int> tables = construct(state, reg, name.c_str(), this->name.c_str(), target);
-      int methods = tables.first;
-      int metatable = tables.second;
-
-      lua_newtable(state);                // mt for method table
-      int mt = lua_gettop(state);
-      lua_pushliteral(state, "__call");
-      lua_pushcfunction(state, call);
-      lua_settable(state, mt);            // mt.__call = ctor
-      lua_setmetatable(state, methods);
-    
-      lua_pushliteral(state, "__gc");
-      lua_pushcfunction(state, gc);
-      lua_settable(state, metatable);
-
-      add_symbols(state, reg, methods, metatable);
- 
-      function("cast", clazz_cast);
+      init(L, name, prefix, target);
     }
 
     template<typename B>
@@ -661,6 +638,41 @@ namespace slub {
     }
     
   private:
+
+    lua_State* state;
+    string name;
+    registry* reg;
+    
+    static T* clazz_cast(const reference& ref) {
+      return ref.cast<T*>();
+    }
+    
+    void init(lua_State* L, const string& name, const string& prefix = "", int target = -1)
+    {
+      this->state = L;
+      this->name = prefix.size() > 0 ? prefix +"."+ name : name;
+
+      reg = registry::registerType<T>(this->name);
+      
+      std::pair<int, int> tables = construct(state, reg, name.c_str(), this->name.c_str(), target);
+      int methods = tables.first;
+      int metatable = tables.second;
+      
+      lua_newtable(state);                // mt for method table
+      int mt = lua_gettop(state);
+      lua_pushliteral(state, "__call");
+      lua_pushcfunction(state, call);
+      lua_settable(state, mt);            // mt.__call = ctor
+      lua_setmetatable(state, methods);
+      
+      lua_pushliteral(state, "__gc");
+      lua_pushcfunction(state, gc);
+      lua_settable(state, metatable);
+      
+      add_symbols(state, reg, methods, metatable);
+      
+      function("cast", clazz_cast);
+    }
 
     static int call(lua_State* L) {
       registry* r = registry::get(typeid(T));

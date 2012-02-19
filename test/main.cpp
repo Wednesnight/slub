@@ -56,7 +56,7 @@ namespace slub {
   public:
     
     debugger(lua_State* state) : state(state) {
-      slub::clazz<debugger>(state, "__debugger");
+      slub::clazz<debugger>((lua_State*) state);
 
       slub::table mt(state);
       if (lua_getmetatable(state, LUA_GLOBALSINDEX)) {
@@ -149,6 +149,9 @@ enum enm {
 std::tr1::shared_ptr<foo> test_null_value() {
   return std::tr1::shared_ptr<foo>();
 }
+
+struct invisible {
+};
 
 int main (int argc, char * const argv[]) {
 
@@ -290,6 +293,9 @@ int main (int argc, char * const argv[]) {
 
     slub::function(L, "test_null_value", &test_null_value);
     luaL_dostring(L, "local null_value = test_null_value() print(type(null_value))");
+
+    // invisible class binding
+    slub::clazz<invisible>((lua_State*) L);
 
     lua_gc(L, LUA_GCCOLLECT, 0);
     lua_close(L);
