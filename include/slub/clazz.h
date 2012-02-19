@@ -79,7 +79,9 @@ namespace slub {
       lua_newtable(state);
       int methods = lua_gettop(state);
       
-      luaL_newmetatable(state, this->name.c_str());
+      if (luaL_newmetatable(state, this->name.c_str()) == 0) {
+        throw new std::runtime_error("already registered: "+ this->name);
+      }
       int metatable = lua_gettop(state);
       
       // store method table in globals so that
