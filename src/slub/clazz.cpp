@@ -28,7 +28,7 @@ namespace slub {
     int methods = lua_gettop(state);
     
     if (luaL_newmetatable(state, fqname) == 0) {
-      throw new std::runtime_error("already registered: "+ string(fqname));
+      throw new std::runtime_error("already registered: "+ std::string(fqname));
     }
     int metatable = lua_gettop(state);
     
