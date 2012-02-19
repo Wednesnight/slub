@@ -123,6 +123,10 @@ namespace slub {
     }
     
     static int push(lua_State* L, T* value, bool gc) {
+      if (value == NULL) {
+        lua_pushnil(L);
+        return 1;
+      }
       if (registry::isRegisteredType<T>()) {
           //        std::cout << "push, registered" << std::endl;
         wrapper<T*>* w = wrapper<T*>::create(L, typeid(*value));
@@ -161,6 +165,10 @@ namespace slub {
     }
     
     static int push(lua_State* L, const boost::shared_ptr<T>& value) {
+      if (value.get() == NULL) {
+        lua_pushnil(L);
+        return 1;
+      }
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         const std::type_info* type = &typeid(*(value.get()));
@@ -209,6 +217,10 @@ namespace slub {
     }
     
     static int push(lua_State* L, const std::tr1::shared_ptr<T>& value) {
+      if (value.get() == NULL) {
+        lua_pushnil(L);
+        return 1;
+      }
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         const std::type_info* type = &typeid(*(value.get()));
@@ -260,6 +272,10 @@ namespace slub {
     }
     
     static int push(lua_State* L, const T* value, bool gc) {
+      if (value == NULL) {
+        lua_pushnil(L);
+        return 1;
+      }
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         wrapper<const T*>* w = wrapper<const T*>::create(L, typeid(*value));
@@ -540,7 +556,12 @@ namespace slub {
     }
     
     static int push(lua_State* L, const string* value) {
-      lua_pushstring(L, value->c_str());
+      if (value == NULL) {
+        lua_pushnil(L);
+      }
+      else {
+        lua_pushstring(L, value->c_str());
+      }
       return 1;
     }
     
@@ -562,7 +583,12 @@ namespace slub {
     }
     
     static int push(lua_State* L, void* value) {
-      lua_pushlightuserdata(L, value);
+      if (value == NULL) {
+        lua_pushnil(L);
+      }
+      else {
+        lua_pushlightuserdata(L, value);
+      }
       return 1;
     }
     

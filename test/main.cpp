@@ -146,6 +146,10 @@ enum enm {
   e2
 };
 
+std::tr1::shared_ptr<foo> test_null_value() {
+  return std::tr1::shared_ptr<foo>();
+}
+
 int main (int argc, char * const argv[]) {
 
   try {
@@ -283,6 +287,9 @@ int main (int argc, char * const argv[]) {
     slub::reference nil;
     _G["nilvalue"] = nil;
     luaL_dostring(L, "print(\"type(nilvalue): \"..type(nilvalue))");
+
+    slub::function(L, "test_null_value", &test_null_value);
+    luaL_dostring(L, "local null_value = test_null_value() print(type(null_value))");
 
     lua_gc(L, LUA_GCCOLLECT, 0);
     lua_close(L);
