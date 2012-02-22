@@ -37,6 +37,8 @@
           './include/slub/config.h',
           './include/slub/constructor.h',
           './include/slub/converter.h',
+          './include/slub/debug/debugger.h',
+          './include/slub/debug/commandline_debugger.h',
           './include/slub/exception.h',
           './include/slub/field.h',
           './include/slub/forward.h',
@@ -54,6 +56,8 @@
 
           './src/slub/call.cpp',
           './src/slub/clazz.cpp',
+          './src/slub/debug/debugger.cpp',
+          './src/slub/debug/commandline_debugger.cpp',
           './src/slub/function.cpp',
           './src/slub/registry.cpp',
         ],
