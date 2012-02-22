@@ -100,6 +100,16 @@ namespace slub {
       return state;
     }
 
+    string toString() const {
+      string result = typeName();
+      int index = push();
+      if (lua_isstring(state, index)) {
+        result = lua_tostring(state, index);
+      }
+      pop();
+      return result;
+    }
+
   protected:
 
     lua_State* state;

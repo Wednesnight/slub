@@ -112,8 +112,8 @@ namespace slub {
     {
     }
     
-    string concat(string sep = "", int offset = 1, int length = -1) const {
-      if (length == -1) {
+    string concat(string sep = "", int offset = 1, int length = 0) const {
+      if (length == 0) {
         length = maxn();
       }
       
@@ -149,8 +149,8 @@ namespace slub {
     }
     
     template<typename valueType>
-    void insert(valueType value, int index = -1) {
-      if (index == -1) {
+    void insert(valueType value, int index = 0) {
+      if (index == 0) {
         index = maxn()+1;
       }
       
@@ -171,35 +171,53 @@ namespace slub {
       lua_pop(state, 1);
     }
     
-    size_t maxn() const {
-      size_t result = lua_objlen(state, push());
-      lua_pop(state, 1);
-      return result;
+    // maxn function from ltablib.c
+    lua_Number maxn() const {
+      lua_Number max = 0;
+      int index = push();
+      luaL_checktype(state, index, LUA_TTABLE);
+      lua_pushnil(state);  /* first key */
+      while (lua_next(state, index)) {
+        lua_pop(state, 1);  /* remove value */
+        if (lua_type(state, -1) == LUA_TNUMBER) {
+          lua_Number v = lua_tonumber(state, -1);
+          if (v > max) max = v;
+        }
+      }
+      return max;
     }
     
-    reference remove(int index = -1) {
-      if (index == -1) {
+    size_t length() const {
+      size_t result = lua_objlen(state, push());
+      pop();
+      return result;
+    }
+
+    reference remove(int index = 0) {
+      if (index == 0) {
         index = maxn();
       }
-      
-      int table_index = push();
-      
-      lua_pushinteger(state, index);
-      lua_gettable(state, table_index);
-      reference result(state);
-      
-      int pos = index;
-      int length = maxn();
-      while (pos < length) {
-        lua_rawgeti(state, table_index, pos+1);
-        lua_rawseti(state, table_index, pos);
-        --pos;
+
+      reference result;
+      if (index > 0) {
+        int table_index = push();
+        
+        lua_pushinteger(state, index);
+        lua_gettable(state, table_index);
+        result = reference(state);
+        
+        int pos = index;
+        int length = maxn();
+        while (pos < length) {
+          lua_rawgeti(state, table_index, pos+1);
+          lua_rawseti(state, table_index, pos++);
+        }
+        
+        lua_pushnil(state);
+        lua_rawseti(state, table_index, length);
+        
+        lua_pop(state, 1);
       }
-      
-      lua_pushnil(state);
-      lua_rawseti(state, table_index, maxn());
-      
-      lua_pop(state, 1);
       return result;
     }
     

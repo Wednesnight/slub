@@ -60,11 +60,9 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace slub {
 
-  typedef SLUB_STRING_TYPE string;
-
-  template<typename T> class list : public SLUB_LIST_TYPE<T> {};
-
-  template<typename K, typename V> class map : public SLUB_MAP_TYPE<K, V> {};
+  using SLUB_STRING_TYPE;
+  using SLUB_LIST_TYPE;
+  using SLUB_MAP_TYPE;
 
 }
 
