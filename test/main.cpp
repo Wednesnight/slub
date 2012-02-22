@@ -43,6 +43,35 @@ namespace slub {
       virtual void slub_debug(lua_State*, lua_Debug*) = 0;
     };
 
+    struct lua_variable {
+      
+    private:
+      friend struct debugger;
+      
+      lua_variable(lua_State* state, int index, const string& name)
+      : index(index),
+        name(name),
+        value(state)
+      {        
+      }
+      
+      lua_variable(int index, const string& name,
+                   const reference& value)
+      : index(index),
+        name(name),
+        value(value)
+      {        
+      }
+      
+    public:
+      int index;
+      string name;
+      reference value;
+      
+    };
+    
+    typedef list<lua_variable> lua_variables;
+    
   private:
 
     map<lua_State*, debugger_callback*> callbacks;
@@ -71,6 +100,7 @@ namespace slub {
     void debug_hook(lua_State* state, lua_Debug *ar) {
       if (callbacks.find(state) != callbacks.end()) {
 
+        bool handled = false;
         switch (ar->event) {
 
           case LUA_HOOKCALL: {
@@ -81,6 +111,7 @@ namespace slub {
                    iter != symbol_breakpoints[state].end(); ++iter)
               {
                 if (*iter == ar->name) {
+                  handled = true;
                   callbacks[state]->slub_debug(state, ar);
                   break;
                 }
@@ -90,7 +121,6 @@ namespace slub {
           }
 
           case LUA_HOOKLINE: {
-            bool handled = false;
             if (line_breakpoints.find(state) != line_breakpoints.end() &&
                 ar->short_src != NULL &&
                 line_breakpoints[state].find(ar->short_src) != line_breakpoints[state].end())
@@ -122,6 +152,13 @@ namespace slub {
           }
 
         }
+
+        if (handled && single_step.find(state) != single_step.end() &&
+            single_step[state])
+        {
+          single_step.erase(state);
+        }
+
       }
     }
 
@@ -212,6 +249,15 @@ namespace slub {
       return result;
     }
 
+    list<string> symbolBreakpoints(lua_State* state) {
+      list<string> breakpoints;
+      if (symbol_breakpoints.find(state) != symbol_breakpoints.end()) {
+        breakpoints.insert(breakpoints.begin(), symbol_breakpoints[state].begin(),
+                           symbol_breakpoints[state].end());
+      }
+      return breakpoints;
+    }
+
     bool toggleSymbolBreakpoint(lua_State* state, string symbol) {
       bool wasActive = false;
       if (symbol_breakpoints.find(state) != symbol_breakpoints.end()) {
@@ -284,6 +330,49 @@ namespace slub {
       return result;
     }
 
+    lua_variables variables(lua_State* state, lua_Debug *ar) {
+      lua_variables result;
+      if (lua_getinfo(state, "f", ar)) {
+        lua_getfenv(state, lua_gettop(state));
+        int env = lua_gettop(state);
+        if (lua_type(state, env) == LUA_TTABLE) {
+          int index = 1;
+          lua_pushnil(state);  /* first key */
+          while (lua_next(state, env)) {
+            reference value(state);
+            reference name(state, lua_gettop(state));
+            result.push_back(lua_variable(index++, name.toString(), value));
+          }
+        }
+        lua_pop(state, 2);
+      }
+      return result;
+    }
+
+    lua_variables locals(lua_State* state, lua_Debug *ar) {
+      lua_variables result;
+      int index = 1;
+      const char* name = NULL;
+      while ((name = lua_getlocal(state, ar, index))) {
+        result.push_back(lua_variable(state, index++, name));
+      }
+      return result;
+    }
+
+    lua_variables upvalues(lua_State* state, lua_Debug *ar) {
+      lua_variables result;
+      if (ar->nups > 0 && lua_getinfo(state, "f", ar)) {
+        int top = lua_gettop(state);
+        int index = 1;
+        const char* name = NULL;
+        while ((name = lua_getupvalue(state, top, index))) {
+          result.push_back(lua_variable(state, index++, name));
+        }
+        lua_pop(state, 1);
+      }
+      return result;
+    }
+    
   };
 
   struct commandline_debugger : public debugger::debugger_callback {
@@ -299,16 +388,23 @@ namespace slub {
     
     debugger dbg;
     Mode mode;
+    bool initialized;
 
   public:
     commandline_debugger(lua_State* state)
-    : mode(DEFAULT)
+    : mode(DEFAULT),
+      initialized(false)
     {
       dbg.attach(state, this);
       dbg.step(state);
     }
 
     void slub_debug(lua_State* state, lua_Debug *ar) {
+      if (!initialized) {
+        initialized = true;
+        std::cout << "slub commandline debugger - type help or ? for a list of commands" << std::endl;
+      }
+
       switch (ar->event) {
         case LUA_HOOKCALL: {
           std::cout << "breakpoint (symbol): " << ar->name << std::endl;
@@ -355,7 +451,31 @@ namespace slub {
                              ::tolower);
 
               // handle command
-              if (command == "c" || command == "continue") {
+              if (command == "?" || command == "help") {
+                std::cout << "slub commandline debugger help" << std::endl << std::endl;
+                std::cout << "\t" << "c, continue"                 << "\t\t\t\t\t\t"   << "continue execution"                 << std::endl;
+                std::cout << "\t" << "s, step"                     << "\t\t\t\t\t\t\t" << "step into next line of execution"   << std::endl;
+                std::cout << "\t" << "t <symbol>, toggle <symbol>" << "\t\t"           << "toggle symbol breakpoint"           << std::endl;
+                std::cout << "\t" << "bp, breakpoints"             << "\t\t\t\t\t"     << "show active breakpoints"            << std::endl;
+                std::cout << "\t" << "e <code>, eval <code>"       << "\t\t\t"         << "evaluate Lua code within current"   << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "execution context"                  << std::endl;
+                std::cout << "\t" << "source"                      << "\t\t\t\t\t\t\t" << "show the source of the current"     << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "execution context"                  << std::endl;
+                std::cout << "\t" << "line"                        << "\t\t\t\t\t\t\t" << "show the current line of execution" << std::endl;
+                std::cout << "\t" << "what"                        << "\t\t\t\t\t\t\t" << "show the type of the current"       << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "execution context"                  << std::endl;
+                std::cout << "\t" << "where"                       << "\t\t\t\t\t\t\t" << "show the detailed location of the"  << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "current execution context"          << std::endl;
+                std::cout << "\t" << "stack"                       << "\t\t\t\t\t\t\t" << "show the current stack trace"       << std::endl;
+                std::cout << "\t" << "variables"                   << "\t\t\t\t\t\t"   << "show global variables of the"       << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "current execution context"          << std::endl;
+                std::cout << "\t" << "locals"                      << "\t\t\t\t\t\t\t" << "show local variables of the current"<< std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "execution context"                  << std::endl;
+                std::cout << "\t" << "upvalues"                    << "\t\t\t\t\t\t"   << "show upvalues of the current"       << std::endl
+                          << "\t\t\t\t\t\t\t\t\t\t"                                    << "execution context"                  << std::endl;
+              }
+
+              else if (command == "c" || command == "continue") {
                 mode = CONTINUE;
               }
 
@@ -364,18 +484,42 @@ namespace slub {
                 dbg.step(state);
               }
 
-              else if (command == "toggle") {
+              else if (command == "t" || command == "toggle") {
                 dbg.toggleSymbolBreakpoint(state, args);
               }
 
-              else if (command == "eval") {
-                if (dbg.evaluate(state, args) > 0) {
-                  if (lua_isstring(state, lua_gettop(state))) {
-                    std::cout << lua_tostring(state, lua_gettop(state)) << std::endl;
+              else if (command == "bp" || command == "breakpoints") {
+                list<string> symbols = dbg.symbolBreakpoints(state);
+                if (symbols.size() == 0) {
+                  std::cout << "no symbol breakpoints" << std::endl;
+                }
+                else {
+                  std::cout << "symbol breakpoints:" << std::endl;
+                  for (list<string>::iterator iter = symbols.begin(); iter != symbols.end(); ++iter) {
+                    std::cout << "\t" << *iter << std::endl;
                   }
-                  else {
-                    std::cout << luaL_typename(state, lua_gettop(state)) << std::endl;
+                }
+              }
+              
+              else if (command == "e" || command == "eval") {
+                int numResults = dbg.evaluate(state, args);
+                if (numResults > 0) {
+                  for (int index = numResults-1; index >= 0; --index) {
+                    int top = lua_gettop(state) - index;
+                    if (lua_isstring(state, top)) {
+                      std::cout << lua_tostring(state, top);
+                    }
+                    else {
+                      std::cout << luaL_typename(state, top);
+                    }
+                    if (index > 0) {
+                      std::cout << ", ";
+                    }
+                    else {
+                      std::cout << std::endl;
+                    }
                   }
+                  lua_pop(state, numResults);
                 }
               }
               
@@ -408,7 +552,55 @@ namespace slub {
                 std::cout << dbg.stack(state) << std::endl;
               }
 
-              else {
+              else if (command == "variables") {
+                debugger::lua_variables variables = dbg.variables(state, ar);
+                if (variables.size() == 0) {
+                  std::cout << "no variables defined" << std::endl;
+                }
+                else {
+                  std::cout << "variables:" << std::endl;
+                  for (debugger::lua_variables::iterator iter = variables.begin();
+                       iter != variables.end(); ++iter)
+                  {
+                    std::cout << "\t" << iter->name << " = " << iter->value.toString()
+                      << " [" << iter->value.typeName() << "]" << std::endl;
+                  }
+                }
+              }
+
+              else if (command == "locals") {
+                debugger::lua_variables locals = dbg.locals(state, ar);
+                if (locals.size() == 0) {
+                  std::cout << "no locals defined" << std::endl;
+                }
+                else {
+                  std::cout << "locals:" << std::endl;
+                  for (debugger::lua_variables::iterator iter = locals.begin();
+                       iter != locals.end(); ++iter)
+                  {
+                    std::cout << "\t" << iter->index << ": " << iter->name << " = "
+                      << iter->value.toString() << " [" << iter->value.typeName() << "]" << std::endl;
+                  }
+                }
+              }
+
+              else if (command == "upvalues") {
+                debugger::lua_variables upvalues = dbg.upvalues(state, ar);
+                if (upvalues.size() == 0) {
+                  std::cout << "no upvalues defined" << std::endl;
+                }
+                else {
+                  std::cout << "upvalues:" << std::endl;
+                  for (debugger::lua_variables::iterator iter = upvalues.begin();
+                       iter != upvalues.end(); ++iter)
+                  {
+                    std::cout << "\t" << iter->index << ": " << iter->name << " = "
+                      << iter->value.toString() << " [" << iter->value.typeName() << "]" << std::endl;
+                  }
+                }
+              }
+              
+              else if (!command.empty()) {
                 std::cout << "unknown command: '" << command << "'" << std::endl;
               }
 
@@ -623,6 +815,14 @@ int main (int argc, char * const argv[]) {
     myTable.insert(false);
     std::tr1::shared_ptr<foo> f = foo::create(10);
     myTable.insert(f);
+    std::cout << myTable.concat(", ") << std::endl;
+    myTable.remove(2); // "another"
+    myTable.remove(3); // false
+    std::cout << myTable.concat(", ") << std::endl;
+    myTable.insert("another", 2);
+    myTable.insert(false, 4);
+    std::cout << myTable.concat(", ") << std::endl;
+    myTable.remove();
     std::cout << myTable.concat(", ") << std::endl;
 
     slub::reference nil;
