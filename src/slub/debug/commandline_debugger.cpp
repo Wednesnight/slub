@@ -81,7 +81,7 @@ namespace slub {
               args = line.substr(command.size()).c_str();
               for (; !args.empty() && ::isspace(*(args.begin())); args.erase(args.begin()));
               for (; !args.empty() && ::isspace(*(args.end()-1)); args.erase(args.end()-1));
-              std::transform(command.begin(), command.end(), command.begin(),
+              eastl::transform(command.begin(), command.end(), command.begin(),
                              ::tolower);
               
               // handle command
