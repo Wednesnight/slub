@@ -41,7 +41,9 @@ namespace slub {
     void debugger::detach(lua_State* state) {
       if (lua_getmetatable(state, LUA_GLOBALSINDEX)) {
         slub::table mt = slub::reference(state);
-        mt["__debugger"] = NULL;
+        // NULL is #defined to 0, so chooses an int overload. The cast makes
+        // this sane.
+        mt["__debugger"] = static_cast<debugger *>(NULL);
         slub::converter<const slub::table&>::push(state, mt);
         lua_setmetatable(state, LUA_GLOBALSINDEX);
       }
