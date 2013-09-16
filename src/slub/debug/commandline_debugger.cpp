@@ -22,19 +22,15 @@ namespace slub {
   namespace debug {
 
     commandline_debugger::commandline_debugger(lua_State* state)
-    : mode(DEFAULT),
-      initialized(false)
+    : mode(DEFAULT)
     {
       dbg.attach(state, this);
       dbg.step(state);
+
+      std::cout << "slub commandline debugger - type help or ? for a list of commands" << std::endl;
     }
     
     void commandline_debugger::slub_debug(lua_State* state, lua_Debug *ar) {
-      if (!initialized) {
-        initialized = true;
-        std::cout << "slub commandline debugger - type help or ? for a list of commands" << std::endl;
-      }
-      
       switch (ar->event) {
         case LUA_HOOKCALL: {
           std::cout << "breakpoint (symbol): " << ar->name << std::endl;

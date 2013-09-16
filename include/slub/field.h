@@ -322,6 +322,30 @@ namespace slub {
     
   };
 
+  template<typename T, typename F>
+  void read_only(T*, F) {}
+
+  template<typename T, typename F>
+  struct field_method_read_only : public abstract_field {
+    
+    F (T::*getter)();
+    
+    field_method_read_only(F (T::*getter)()) : getter(getter) {
+    }
+    
+    int get(lua_State* L) {
+      wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
+      return converter<F>::push(L, (t->ref->*getter)());
+    }
+    
+    int set(lua_State* L) {
+      wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
+      read_only(t->ref, converter<F>::get(L, -1));
+      return 0;
+    }
+    
+  };
+  
 }
 
 #endif

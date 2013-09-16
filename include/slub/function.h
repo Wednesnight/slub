@@ -34,8 +34,25 @@ namespace slub {
     bool valid() { return ref.type() == LUA_TFUNCTION; }
   };
 
-  template<typename ret = void, typename arg1 = empty, typename arg2 = empty, typename arg3 = empty>
+  template<typename ret = void, typename arg1 = empty, typename arg2 = empty, typename arg3 = empty, typename arg4 = empty>
   struct lua_function : public lua_function_base {
+    lua_function() {}
+    lua_function(const reference& ref) : lua_function_base(ref) {}
+    ret operator()(arg1 a1, arg2 a2, arg3 a3, arg4 a4) {
+      converter<reference>::push(ref.getState(), ref);
+      converter<arg1>::push(ref.getState(), a1);
+      converter<arg2>::push(ref.getState(), a2);
+      converter<arg3>::push(ref.getState(), a3);
+      converter<arg4>::push(ref.getState(), a4);
+      slub::call(ref.getState(), 4, 1);
+      ret r = converter<ret>::get(ref.getState(), -1);
+      lua_pop(ref.getState(), 1);
+      return r;
+    }
+  };
+
+  template<typename ret, typename arg1, typename arg2, typename arg3>
+  struct lua_function<ret, arg1, arg2, arg3, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2, arg3 a3) {
@@ -51,7 +68,7 @@ namespace slub {
   };
 
   template<typename arg1, typename arg2, typename arg3>
-  struct lua_function<void, arg1, arg2, arg3> : public lua_function_base {
+  struct lua_function<void, arg1, arg2, arg3, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2, arg3 a3) {
@@ -64,7 +81,7 @@ namespace slub {
   };
   
   template<typename ret, typename arg1, typename arg2>
-  struct lua_function<ret, arg1, arg2, empty> : public lua_function_base {
+  struct lua_function<ret, arg1, arg2, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1, arg2 a2) {
@@ -79,7 +96,7 @@ namespace slub {
   };
   
   template<typename arg1, typename arg2>
-  struct lua_function<void, arg1, arg2, empty> : public lua_function_base {
+  struct lua_function<void, arg1, arg2, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1, arg2 a2) {
@@ -91,7 +108,7 @@ namespace slub {
   };
   
   template<typename ret, typename arg1>
-  struct lua_function<ret, arg1, empty, empty> : public lua_function_base {
+  struct lua_function<ret, arg1, empty, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()(arg1 a1) {
@@ -105,7 +122,7 @@ namespace slub {
   };
   
   template<typename arg1>
-  struct lua_function<void, arg1, empty, empty> : public lua_function_base {
+  struct lua_function<void, arg1, empty, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()(arg1 a1) {
@@ -116,7 +133,7 @@ namespace slub {
   };
   
   template<typename ret>
-  struct lua_function<ret, empty, empty, empty> : public lua_function_base {
+  struct lua_function<ret, empty, empty, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     ret operator()() {
@@ -129,7 +146,7 @@ namespace slub {
   };
   
   template<>
-  struct lua_function<void, empty, empty, empty> : public lua_function_base {
+  struct lua_function<void, empty, empty, empty, empty> : public lua_function_base {
     lua_function() {}
     lua_function(const reference& ref) : lua_function_base(ref) {}
     void operator()() {
@@ -140,50 +157,62 @@ namespace slub {
 
 
 
+  template<typename ret, typename arg1, typename arg2, typename arg3, typename arg4>
+  static inline ret call(const reference& r, arg1 a1, arg2 a2, arg3 a3, arg4 a4) {
+    lua_function<ret, arg1, arg2, arg3, arg4> f(r);
+    return f(a1, a2, a3, a4);
+  }
+  
+  template<typename arg1, typename arg2, typename arg3, typename arg4>
+  static inline void call(const reference& r, arg1 a1, arg2 a2, arg3 a3, arg4 a4) {
+    lua_function<void, arg1, arg2, arg3, arg4> f(r);
+    f(a1, a2, a3, a4);
+  }
+  
   template<typename ret, typename arg1, typename arg2, typename arg3>
   static inline ret call(const reference& r, arg1 a1, arg2 a2, arg3 a3) {
-    lua_function<ret, arg1, arg2, arg3> f(r);
+    lua_function<ret, arg1, arg2, arg3, empty> f(r);
     return f(a1, a2, a3);
   }
   
   template<typename arg1, typename arg2, typename arg3>
   static inline void call(const reference& r, arg1 a1, arg2 a2, arg3 a3) {
-    lua_function<void, arg1, arg2, arg3> f(r);
+    lua_function<void, arg1, arg2, arg3, empty> f(r);
     f(a1, a2, a3);
   }
   
   template<typename ret, typename arg1, typename arg2>
   static inline ret call(const reference& r, arg1 a1, arg2 a2) {
-    lua_function<ret, arg1, arg2, empty> f(r);
+    lua_function<ret, arg1, arg2, empty, empty> f(r);
     return f(a1, a2);
   }
   
   template<typename arg1, typename arg2>
   static inline void call(const reference& r, arg1 a1, arg2 a2) {
-    lua_function<void, arg1, arg2, empty> f(r);
+    lua_function<void, arg1, arg2, empty, empty> f(r);
     f(a1, a2);
   }
   
   template<typename ret, typename arg1>
   static inline ret call(const reference& r, arg1 a1) {
-    lua_function<ret, arg1, empty, empty> f(r);
+    lua_function<ret, arg1, empty, empty, empty> f(r);
     return f(a1);
   }
   
   template<typename arg1>
   static inline void call(const reference& r, arg1 a1) {
-    lua_function<void, arg1, empty, empty> f(r);
+    lua_function<void, arg1, empty, empty, empty> f(r);
     f(a1);
   }
   
   template<typename ret>
   static inline ret call(const reference& r) {
-    lua_function<ret, empty, empty, empty> f(r);
+    lua_function<ret, empty, empty, empty, empty> f(r);
     return f();
   }
 
   static inline void call(const reference& r) {
-    lua_function<void, empty, empty, empty> f(r);
+    lua_function<void, empty, empty, empty, empty> f(r);
     f();
   }
 

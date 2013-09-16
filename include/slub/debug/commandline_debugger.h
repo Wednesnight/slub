@@ -36,7 +36,6 @@ namespace slub {
       
       debugger dbg;
       Mode mode;
-      bool initialized;
       
     public:
       commandline_debugger(lua_State* state);      

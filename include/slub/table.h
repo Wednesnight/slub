@@ -100,6 +100,8 @@ namespace slub {
     
   public:
     
+    table() {}
+
     table(lua_State* state)
     : table_entry()
     {

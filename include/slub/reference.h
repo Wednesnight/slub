@@ -55,7 +55,13 @@ namespace slub {
       state = NULL;
       index = LUA_REFNIL;
     }
-    
+
+    virtual bool operator==(const reference& r) {
+      bool result = lua_equal(state, push(), r.push());
+      lua_pop(state, 2);
+      return result;
+    }
+
     virtual void operator=(const reference& r) {
       this->state = r.state;
       if (r.index != LUA_REFNIL) {

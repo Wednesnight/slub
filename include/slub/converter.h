@@ -54,7 +54,7 @@ namespace slub {
         wrapper<T*>* w = static_cast<wrapper<T*>*>(checkudata(L, index));
         return *w->ref;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
 
     static int push(lua_State* L, const T& value) {
@@ -67,7 +67,7 @@ namespace slub {
         lua_setmetatable(L, -2);
         return 1;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
 
   };
@@ -115,7 +115,7 @@ namespace slub {
         wrapper<T*>* w = static_cast<wrapper<T*>*>(converter<T*>::checkudata(L, index));
         return w->ref;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, T* value) {
@@ -136,7 +136,7 @@ namespace slub {
         lua_setmetatable(L, -2);
         return 1;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
   };
@@ -145,6 +145,7 @@ namespace slub {
   struct shared_ptr_holder : public holder_base {
     T s_ptr;
     shared_ptr_holder(const T& s_ptr) : s_ptr(s_ptr) {}
+    virtual ~shared_ptr_holder() { s_ptr.reset(); }
   };
 
   template<typename T>
@@ -161,7 +162,7 @@ namespace slub {
           static_cast<wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>*>(converter<T>::checkudata(L, index));
         return w->holder->s_ptr;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, const boost::shared_ptr<T>& value) {
@@ -188,7 +189,7 @@ namespace slub {
           return 1;
         }
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
 
   };
@@ -213,7 +214,7 @@ namespace slub {
           static_cast<wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>*>(converter<T>::checkudata(L, index));
         return w->holder->s_ptr;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, const std::tr1::shared_ptr<T>& value) {
@@ -240,7 +241,7 @@ namespace slub {
           return 1;
         }
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
   };
@@ -264,7 +265,7 @@ namespace slub {
         wrapper<const T*>* w = static_cast<wrapper<const T*>*>(converter<T>::checkudata(L, index));
         return w->ref;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, const T* value) {
@@ -285,7 +286,7 @@ namespace slub {
         lua_setmetatable(L, -2);
         return 1;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
   };
@@ -303,7 +304,7 @@ namespace slub {
         wrapper<T*>* w = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, index));
         return *w->ref;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, T& value) {
@@ -320,7 +321,7 @@ namespace slub {
         lua_setmetatable(L, -2);
         return 1;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
   };
@@ -338,7 +339,7 @@ namespace slub {
         wrapper<const T*>* w = static_cast<wrapper<const T*>*>(converter<T>::checkudata(L, index));
         return *w->ref;
       }
-      throw std::runtime_error("trying to use unregistered type");
+      throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
     
     static int push(lua_State* L, const T& value) {
@@ -420,7 +421,28 @@ namespace slub {
   
   template<>
   struct converter<const unsigned int&> : converter<unsigned int> {};
-  
+
+    template<>
+    struct converter<long> {
+        
+        static bool check(lua_State* L, int index) {
+            return lua_isnumber(L, index);
+        }
+        
+        static long get(lua_State* L, int index) {
+            return luaL_checklong(L, index);
+        }
+        
+        static int push(lua_State* L, long value) {
+            lua_pushinteger(L, value);
+            return 1;
+        }
+        
+    };
+
+  template<>
+  struct converter<const long&> : converter<long> {};
+
   template<>
   struct converter<unsigned short> {
     

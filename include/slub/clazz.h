@@ -138,6 +138,18 @@ namespace slub {
       return *this;
     }
     
+    template<typename F>
+    clazz& field(const string& fieldName, F (*getter)(T*)) {
+      reg->addField(fieldName, new slub::field_function<T, F>(getter, &slub::read_only));
+      return *this;
+    }
+    
+    template<typename F>
+    clazz& field(const string& fieldName, F (T::*getter)()) {
+      reg->addField(fieldName, new slub::field_method_read_only<T, F>(getter));
+      return *this;
+    }
+    
     template<typename ret>
     clazz& method(const string& methodName, ret (T::*m)()) {
       reg->addMethod(methodName, new slub::method<T, ret>(m));
