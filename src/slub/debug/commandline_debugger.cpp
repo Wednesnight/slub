@@ -1,28 +1,31 @@
 /*
-Copyright (c) 2011 Timo Boll, Tony Kostanjsek
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
-following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ Copyright (c) 2011 Timo Boll, Tony Kostanjsek
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+ following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 #include "../../../include/slub/config.h"
 #include "../../../include/slub/debug/commandline_debugger.h"
 
+#include <string>
+
 namespace slub {
-
+  
   namespace debug {
-
+    
     commandline_debugger::commandline_debugger(lua_State* state)
-    : mode(DEFAULT)
+    : mode(DEFAULT),
+    initialized(false)
     {
       dbg.attach(state, this);
       dbg.step(state);
@@ -63,17 +66,19 @@ namespace slub {
             std::cout << "debug>";
             
             // read next command
-            string line;
+            std::string line;
             if (std::getline(std::cin, line)) {
               
               // parse command
               std::istringstream iss(line);
               string command, args;
-              iss >> command;
-              args = line.substr(command.size());
+              std::string cmd;
+              iss >> cmd;
+              command = cmd.c_str();
+              args = line.substr(command.size()).c_str();
               for (; !args.empty() && ::isspace(*(args.begin())); args.erase(args.begin()));
               for (; !args.empty() && ::isspace(*(args.end()-1)); args.erase(args.end()-1));
-              std::transform(command.begin(), command.end(), command.begin(),
+              eastl::transform(command.begin(), command.end(), command.begin(),
                              ::tolower);
               
               // handle command
@@ -240,7 +245,7 @@ namespace slub {
         }
       }
     }
-
+    
   }
-
+  
 }
