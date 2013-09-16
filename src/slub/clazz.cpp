@@ -138,6 +138,11 @@ namespace slub {
         lua_pushcclosure(L, callMethod, 1);
         return 1;
       }
+      else if (reg->containsOperator("__index")) {
+        int num = lua_gettop(L);
+        reg->getOperator("__index", L)->op(L);
+        return lua_gettop(L) - num;
+      }
       else {
         // get value from Lua table
         luaL_getmetatable(L, reg->getTypeName().c_str());

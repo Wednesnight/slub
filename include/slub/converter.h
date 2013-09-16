@@ -420,7 +420,10 @@ namespace slub {
   };
   
   template<>
-  struct converter<const unsigned int&> : converter<unsigned int> {};
+  struct converter<const unsigned int> : converter<unsigned int> {};
+
+    template<>
+    struct converter<const unsigned int&> : converter<unsigned int> {};
 
     template<>
     struct converter<long> {

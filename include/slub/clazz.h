@@ -444,6 +444,11 @@ namespace slub {
       return *this;
     }
     
+    clazz& tostring_default() {
+      reg->addOperator("__tostring", new lua_tostring_operator<T>());
+      return *this;
+    }
+    
     template<typename R, typename F>
     clazz& add() {
       reg->addOperator("__add", new add_operator<T, R, F>());
@@ -488,6 +493,12 @@ namespace slub {
     template<typename R>
     clazz& unm() {
       reg->addOperator("__unm", new unm_operator<T, R>());
+      return *this;
+    }
+    
+    template<typename R, typename F>
+    clazz& index() {
+      reg->addOperator("__index", new index_operator<T, R, F>());
       return *this;
     }
     

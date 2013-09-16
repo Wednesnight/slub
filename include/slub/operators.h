@@ -88,6 +88,16 @@ namespace slub {
     
   };
   
+  template<typename T>
+  struct lua_tostring_operator : public operator_<T, empty> {
+    
+    int op(lua_State* L) {
+      lua_pushstring(L, luaL_typename(L, 1));
+      return 1;
+    }
+    
+  };
+  
   template<typename T, typename R, typename F>
   struct add_operator : public operator_<T, F> {
 
@@ -153,6 +163,15 @@ namespace slub {
       return converter<R>::push(L, -(*converter<T*>::get(L, 1)));
     }
     
+  };
+
+  template<typename T, typename R, typename F>
+  struct index_operator : public operator_<T, F> {
+    
+    int op(lua_State* L) {
+      return converter<R>::push(L, (*converter<T*>::get(L, 1)).operator[](converter<F>::get(L, -1)));
+    }
+           
   };
   
 }
