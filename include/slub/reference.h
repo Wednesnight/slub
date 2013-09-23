@@ -20,6 +20,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "config.h"
 #include "call.h"
 #include "converter.h"
+#include <functional>
 
 #include <stdexcept>
 
@@ -57,7 +58,7 @@ namespace slub {
     }
 
     virtual bool operator==(const reference& r) {
-      bool result = lua_equal(state, push(), r.push());
+      bool result = (lua_equal(state, push(), r.push()) != 0);
       lua_pop(state, 2);
       return result;
     }
@@ -116,7 +117,6 @@ namespace slub {
       return result;
     }
 
-  protected:
 
     lua_State* state;
     int index;
@@ -125,17 +125,20 @@ namespace slub {
       return push(state);
     }
 
-    int push(lua_State* state) const {
-      if (state == NULL && index == LUA_REFNIL) {
+    int push(lua_State* externalState) const {
+      if (externalState == NULL && index == LUA_REFNIL) {
         throw std::runtime_error("trying to push a nil value");
       }
+      else if (state && (externalState != state)) {
+        throw std::runtime_error("trying to push to a different state");
+      }
       if (index != LUA_REFNIL) {
-        lua_rawgeti(state, LUA_REGISTRYINDEX, index);
+        lua_rawgeti(externalState, LUA_REGISTRYINDEX, index);
       }
       else {
-        lua_pushnil(state);
+        lua_pushnil(externalState);
       }
-      return lua_gettop(state);
+      return lua_gettop(externalState);
     }
 
     void pop() const {
@@ -175,7 +178,11 @@ namespace slub {
   
   template<>
   struct converter<const reference&> : converter<reference> {};
-  
+
+  // table iteration, check for correct table type before passing reference!
+  // from func, return false to abort iteration, or return true to continue
+  void for_each(slub::reference table, std::function<bool(const slub::reference&, const slub::reference&)> func);
+
 }
 
 #endif

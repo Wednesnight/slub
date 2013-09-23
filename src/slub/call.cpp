@@ -15,7 +15,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "../../include/slub/call.h"
-
+#include "slub/reference.h"
 #include <stdexcept>
 
 namespace slub {
@@ -67,6 +67,19 @@ namespace slub {
     int result = lua_pcall(state, nargs, nresults, errfunc_idx);
     lua_remove(state, errfunc_idx);
     return result;
+  }
+
+  void for_each(slub::reference table, std::function<bool(const slub::reference&, const slub::reference&)> func) {
+    int table_index = table.push(); // lua_next expects table + first key on stack
+    lua_pushnil(table.state);  /* first key */
+    bool doContinue = true;
+    while (doContinue && (lua_next(table.state, table_index) != 0)) {
+      slub::reference tvalue(table.state); // pops it from stack 
+      slub::reference tkey(table.state); // pops it from stack
+      doContinue = func(tkey, tvalue);
+      tkey.push(); // in order to continue iteration, key must be on top of stack
+    }
+    lua_pop(table.state, 1); // pop table again
   }
 
 }
