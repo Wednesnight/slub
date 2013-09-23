@@ -54,13 +54,18 @@ namespace slub {
      * a temporary; was protected
      */
     table_entry(const table_entry& r) {
-      this->operator=(r);
-    }
-    
-    void operator=(const table_entry& r) {
       reference::operator=(r);
       key = r.key;
       parent = r.parent;
+    }
+    
+    void operator=(const table_entry& r) {
+      converter<reference>::push(state, parent);
+      int table_index = lua_gettop(state);
+      converter<reference>::push(state, key);
+      converter<reference>::push(state, r);
+      lua_settable(state, table_index);
+      lua_pop(state, 1);
     }
 
     template<typename valueType>
@@ -106,7 +111,7 @@ namespace slub {
     : table_entry()
     {
       lua_newtable(state);
-      *this = reference(state);
+      reference::operator=(reference(state));
     }
     
     table(const reference& r)
@@ -116,7 +121,7 @@ namespace slub {
     
     string concat(string sep = "", int offset = 1, int length = 0) const {
       if (length == 0) {
-        length = maxn();
+        length = (int)maxn();
       }
       
       string result;
@@ -153,12 +158,12 @@ namespace slub {
     template<typename valueType>
     void insert(valueType value, int index = 0) {
       if (index == 0) {
-        index = maxn()+1;
+        index = (int)(maxn()+1);
       }
       
       int table_index = push();
       
-      int pos = maxn();
+      int pos = (int)maxn();
       int offset = index;
       while (pos >= offset) {
         lua_rawgeti(state, table_index, pos);
@@ -186,6 +191,7 @@ namespace slub {
           if (v > max) max = v;
         }
       }
+      pop();
       return max;
     }
     
@@ -197,7 +203,7 @@ namespace slub {
 
     reference remove(int index = 0) {
       if (index == 0) {
-        index = maxn();
+        index = (int)maxn();
       }
 
       reference result;
@@ -209,7 +215,7 @@ namespace slub {
         result = reference(state);
         
         int pos = index;
-        int length = maxn();
+        int length = (int)maxn();
         while (pos < length) {
           lua_rawgeti(state, table_index, pos+1);
           lua_rawseti(state, table_index, pos++);
