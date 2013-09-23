@@ -48,7 +48,7 @@ namespace slub {
 
   public:
 
-    friend class registry_holder;
+    friend struct registry_holder;
 
     template<typename T>
     static registry* registerType(const string& typeName) {
