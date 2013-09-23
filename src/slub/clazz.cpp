@@ -138,7 +138,7 @@ namespace slub {
         lua_pushcclosure(L, callMethod, 1);
         return 1;
       }
-      else if (reg->containsOperator("__index")) {
+      else if (reg->containsOperator("__index") && reg->getOperator("__index", L, false) != NULL) {
         int num = lua_gettop(L);
         reg->getOperator("__index", L)->op(L);
         return lua_gettop(L) - num;
@@ -181,10 +181,34 @@ namespace slub {
   }
   
   int abstract_clazz::callMethod(lua_State* L) {
-    registry* reg = registry::get(*((wrapper_base*) lua_touserdata(L, 1))->type);
-    int num = lua_gettop(L);
-    reg->getMethod(lua_tostring(L, lua_upvalueindex(1)), L)->call(L);
-    return lua_gettop(L) - num;
+    void* ud = lua_touserdata(L, 1);
+    if(!ud) {
+       throw std::runtime_error("callMethod failed, did you use '.' instead of ':'?");
+    }
+    registry* reg = registry::get(*((wrapper_base*) ud)->type);
+    const char* methodName = lua_tostring(L, lua_upvalueindex(1));
+
+    int numParams = lua_gettop(L);
+
+    // try to get value from Lua table
+    luaL_getmetatable(L, reg->getTypeName().c_str());
+    lua_getfield(L, -1, "__metatable");
+    int methods = lua_gettop(L);
+      
+    lua_pushstring(L, methodName);
+    lua_gettable(L, methods);
+    lua_remove(L, -2);
+    lua_remove(L, -2);
+
+    if (lua_isfunction(L, lua_gettop(L))) {
+      slub::call(L, numParams, LUA_MULTRET);
+    }
+    else {
+      lua_pop(L, 1);
+      reg->getMethod(methodName, L)->call(L);
+    }
+
+    return lua_gettop(L) - numParams;
   }
   
   int abstract_clazz::callOperator(lua_State* L) {
