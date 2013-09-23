@@ -370,7 +370,7 @@ namespace slub {
     
     static bool get(lua_State* L, int index) {
       luaL_checktype(L, index, LUA_TBOOLEAN);
-      return lua_toboolean(L, index);
+      return lua_toboolean(L, index) != 0; // comparison to silcen MSVC warning
     }
     
     static int push(lua_State* L, bool value) {
@@ -384,7 +384,7 @@ namespace slub {
   struct converter<int> {
 
     static bool check(lua_State* L, int index) {
-      return lua_isnumber(L, index);
+      return lua_isnumber(L, index) != 0;
     }
     
     static int get(lua_State* L, int index) {
@@ -405,7 +405,7 @@ namespace slub {
   struct converter<unsigned int> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isnumber(L, index);
+      return lua_isnumber(L, index) != 0;
     }
     
     static unsigned int get(lua_State* L, int index) {
@@ -429,7 +429,7 @@ namespace slub {
     struct converter<long> {
         
         static bool check(lua_State* L, int index) {
-            return lua_isnumber(L, index);
+            return lua_isnumber(L, index) != 0;
         }
         
         static long get(lua_State* L, int index) {
@@ -450,7 +450,7 @@ namespace slub {
   struct converter<unsigned short> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isnumber(L, index);
+      return lua_isnumber(L, index) != 0;
     }
     
     static unsigned short get(lua_State* L, int index) {
@@ -471,7 +471,7 @@ namespace slub {
   struct converter<unsigned char> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isnumber(L, index);
+      return lua_isnumber(L, index) != 0;
     }
     
     static unsigned char get(lua_State* L, int index) {
@@ -492,7 +492,7 @@ namespace slub {
   struct converter<double> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isnumber(L, index);
+      return lua_isnumber(L, index) != 0;
     }
     
     static double get(lua_State* L, int index) {
@@ -513,7 +513,7 @@ namespace slub {
   struct converter<char*> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isstring(L, index);
+      return lua_isstring(L, index) != 0;
     }
     
     static const char* get(lua_State* L, int index) {
@@ -531,7 +531,7 @@ namespace slub {
   struct converter<const char*> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isstring(L, index);
+      return lua_isstring(L, index) != 0;
     }
     
     static const char* get(lua_State* L, int index) {
@@ -549,7 +549,7 @@ namespace slub {
   struct converter<string> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isstring(L, index);
+      return lua_isstring(L, index) != 0;
     }
     
     static string get(lua_State* L, int index) {
@@ -573,7 +573,7 @@ namespace slub {
   struct converter<string*> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isstring(L, index);
+      return lua_isstring(L, index) != 0;
     }
     
     static string* get(lua_State* L, int index) {
@@ -599,7 +599,7 @@ namespace slub {
   struct converter<void*> {
     
     static bool check(lua_State* L, int index) {
-      return lua_isuserdata(L, index);
+      return lua_isuserdata(L, index) != 0;
     }
     
     static void* get(lua_State* L, int index) {
