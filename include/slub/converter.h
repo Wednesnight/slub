@@ -52,7 +52,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
         wrapper<T*>* w = static_cast<wrapper<T*>*>(checkudata(L, index));
-        return *w->ref;
+        return *w->ref();
       }
       throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
@@ -61,7 +61,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         wrapper<T*>* w = wrapper<T*>::create(L, typeid(value));
-        w->ref = new T(value);
+        w->ref(new T(value));
         w->gc = true;
         luaL_getmetatable(L, registry::get(typeid(value))->getTypeName().c_str());
         lua_setmetatable(L, -2);
@@ -113,7 +113,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
           //        std::cout << "get, registered" << std::endl;
         wrapper<T*>* w = static_cast<wrapper<T*>*>(converter<T*>::checkudata(L, index));
-        return w->ref;
+        return w->ref();
       }
       throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
@@ -130,7 +130,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
           //        std::cout << "push, registered" << std::endl;
         wrapper<T*>* w = wrapper<T*>::create(L, typeid(*value));
-        w->ref = value;
+        w->ref(value);
         w->gc = gc;
         luaL_getmetatable(L, registry::get(typeid(*value))->getTypeName().c_str());
         lua_setmetatable(L, -2);
@@ -182,7 +182,7 @@ namespace slub {
           wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>* w =
             wrapper<T*, shared_ptr_holder<boost::shared_ptr<T> >*>::create(L, *type);
           w->holder = new shared_ptr_holder<boost::shared_ptr<T> >(value);
-          w->ref = value.get();
+          w->ref(value.get());
           w->gc = true;
           luaL_getmetatable(L, reg->getTypeName().c_str());
           lua_setmetatable(L, -2);
@@ -234,7 +234,7 @@ namespace slub {
           wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>* w =
             wrapper<T*, shared_ptr_holder<std::tr1::shared_ptr<T> >*>::create(L, *type);
           w->holder = new shared_ptr_holder<std::tr1::shared_ptr<T> >(value);
-          w->ref = value.get();
+          w->ref(value.get());
           w->gc = true;
           luaL_getmetatable(L, reg->getTypeName().c_str());
           lua_setmetatable(L, -2);
@@ -252,6 +252,58 @@ namespace slub {
   template<typename T>
   struct converter<const std::tr1::shared_ptr<T>&> : converter<std::tr1::shared_ptr<T> > {};
   
+    template<typename T>
+    struct converter<std::shared_ptr<T> > {
+        
+        static bool check(lua_State* L, int index) {
+            return converter<T>::check(L, index);
+        }
+        
+        static std::shared_ptr<T>& get(lua_State* L, int index) {
+            if (registry::isRegisteredType<T>()) {
+                //        std::cout << "get, registered" << std::endl;
+                wrapper<T*, shared_ptr_holder<std::shared_ptr<T> >*>* w =
+                static_cast<wrapper<T*, shared_ptr_holder<std::shared_ptr<T> >*>*>(converter<T>::checkudata(L, index));
+                return w->holder->s_ptr;
+            }
+            throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
+        }
+        
+        static int push(lua_State* L, const std::shared_ptr<T>& value) {
+            if (value.get() == NULL) {
+                lua_pushnil(L);
+                return 1;
+            }
+            if (registry::isRegisteredType<T>()) {
+                //        std::cout << "push, registered" << std::endl;
+                const std::type_info* type = &typeid(*(value.get()));
+                registry* reg = registry::get(*type);
+                if (reg == NULL) {
+                    type = &typeid(T);
+                    reg = registry::get(*type);
+                }
+                if (reg != NULL) {
+                    wrapper<T*, shared_ptr_holder<std::shared_ptr<T> >*>* w =
+                    wrapper<T*, shared_ptr_holder<std::shared_ptr<T> >*>::create(L, *type);
+                    w->holder = new shared_ptr_holder<std::shared_ptr<T> >(value);
+                    w->ref(value.get());
+                    w->gc = true;
+                    luaL_getmetatable(L, reg->getTypeName().c_str());
+                    lua_setmetatable(L, -2);
+                    return 1;
+                }
+            }
+            throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
+        }
+        
+    };
+    
+    template<typename T>
+    struct converter<std::shared_ptr<T>&> : converter<std::shared_ptr<T> > {};
+    
+    template<typename T>
+    struct converter<const std::shared_ptr<T>&> : converter<std::shared_ptr<T> > {};
+    
   template<typename T>
   struct converter<const T*> {
     
@@ -263,7 +315,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
         wrapper<const T*>* w = static_cast<wrapper<const T*>*>(converter<T>::checkudata(L, index));
-        return w->ref;
+        return w->ref();
       }
       throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
@@ -280,7 +332,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         wrapper<const T*>* w = wrapper<const T*>::create(L, typeid(*value));
-        w->ref = value;
+        w->ref(value);
         w->gc = gc;
         luaL_getmetatable(L, registry::get(typeid(*value))->getTypeName().c_str());
         lua_setmetatable(L, -2);
@@ -302,7 +354,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
         wrapper<T*>* w = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, index));
-        return *w->ref;
+        return *w->ref();
       }
       throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
@@ -315,7 +367,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         wrapper<T*>* w = wrapper<T*>::create(L, typeid(value));
-        w->ref = &value;
+        w->ref(&value);
         w->gc = gc;
         luaL_getmetatable(L, registry::get(typeid(value))->getTypeName().c_str());
         lua_setmetatable(L, -2);
@@ -337,7 +389,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "get, registered" << std::endl;
         wrapper<const T*>* w = static_cast<wrapper<const T*>*>(converter<T>::checkudata(L, index));
-        return *w->ref;
+        return *w->ref();
       }
       throw std::runtime_error(string("trying to use unregistered type ") + string(typeid(T).name()));
     }
@@ -350,7 +402,7 @@ namespace slub {
       if (registry::isRegisteredType<T>()) {
 //        std::cout << "push, registered" << std::endl;
         wrapper<const T*>* w = wrapper<const T*>::create(L, typeid(value));
-        w->ref = &value;
+        w->ref(&value);
         w->gc = gc;
         luaL_getmetatable(L, registry::get(typeid(value))->getTypeName().c_str());
         lua_setmetatable(L, -2);

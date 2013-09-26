@@ -272,4 +272,26 @@ namespace slub {
     return baseList_;
   }
 
+  int registry::getInstanceTable(lua_State* L, void* instance) {
+    if (pushedInstances.find((long int) instance) == pushedInstances.end()) {
+      lua_newtable(L);
+      pushedInstances[(long int) instance] = luaL_ref(L, LUA_REGISTRYINDEX);
+      pushedInstancesRefCount[(long int) instance] = 1;
+    }
+    else {
+      pushedInstancesRefCount[(long int) instance] += 1;
+    }
+    lua_rawgeti(L, LUA_REGISTRYINDEX, pushedInstances[(long int) instance]);
+    return lua_gettop(L);
+  }
+
+  void registry::removeInstanceTable(lua_State* L, void* instance) {
+    pushedInstancesRefCount[(long int) instance] -= 1;
+    if (pushedInstancesRefCount[(long int) instance] <= 0) {
+      luaL_unref(L, LUA_REGISTRYINDEX, pushedInstances[(long int) instance]);
+      pushedInstances.erase((long int) instance);
+      pushedInstancesRefCount.erase((long int) instance);
+    }
+  }
+
 }

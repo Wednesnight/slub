@@ -130,50 +130,60 @@ namespace slub {
     registry* reg = registry::get(*((wrapper_base*) lua_touserdata(L, 1))->type);
     if (reg != NULL) {
       const char* name = lua_tostring(L, -1);
-      if (reg->containsField(name)) {
-        return reg->getField(lua_touserdata(L, 1), name)->get(L);
-      }
-      else if (reg->containsMethod(name)) {
-        lua_pushvalue(L, -1);
-        lua_pushcclosure(L, callMethod, 1);
+
+      reg->getInstanceTable(L, ((wrapper_base*) lua_touserdata(L, 1))->raw);
+      lua_pushstring(L, name);
+      lua_rawget(L, -2);
+      if (lua_type(L, lua_gettop(L)) != LUA_TNIL) {
+        lua_remove(L, -2);
         return 1;
-      }
-      else if (reg->containsOperator("__index") && reg->getOperator("__index", L, false) != NULL) {
-        int num = lua_gettop(L);
-        reg->getOperator("__index", L)->op(L);
-        return lua_gettop(L) - num;
       }
       else {
-        // get value from Lua table
-        luaL_getmetatable(L, reg->getTypeName().c_str());
-        lua_getfield(L, -1, "__metatable");
-        int methods = lua_gettop(L);
-      
-        lua_pushvalue(L, -3);
-        lua_gettable(L, methods);
+        lua_pop(L, 2);
+
+        if (reg->containsField(name)) {
+          return reg->getField(lua_touserdata(L, 1), name)->get(L);
+        }
+        else if (reg->containsMethod(name)) {
+          lua_pushvalue(L, -1);
+          lua_pushcclosure(L, callMethod, 1);
+          return 1;
+        }
+        else if (reg->containsOperator("__index") && reg->getOperator("__index", L, false) != NULL) {
+          int num = lua_gettop(L);
+          reg->getOperator("__index", L)->op(L);
+          return lua_gettop(L) - num;
+        }
+        else {
+          // get value from Lua table
+          luaL_getmetatable(L, reg->getTypeName().c_str());
+          lua_getfield(L, -1, "__metatable");
+          int methods = lua_gettop(L);
         
-        return 1;
+          lua_pushvalue(L, -3);
+          lua_gettable(L, methods);
+          
+          return 1;
+        }
       }
     }
     return 0;
   }
   
   int abstract_clazz::newindex(lua_State* L) {
-    registry* reg = registry::get(*((wrapper_base*) lua_touserdata(L, 1))->type);
+    wrapper_base* w = (wrapper_base*) lua_touserdata(L, 1);
+    registry* reg = registry::get(*(w)->type);
     if (reg != NULL) {
       string name(lua_tostring(L, -2));
       if (reg->containsField(name)) {
         return reg->getField(lua_touserdata(L, 1), name)->set(L);
       }
       else {
-        luaL_getmetatable(L, reg->getTypeName().c_str());
-        lua_getfield(L, -1, "__metatable");
-        int methods = lua_gettop(L);
-        
+        reg->getInstanceTable(L, w->raw);
         lua_pushvalue(L, -3);
-        lua_setfield(L, methods, name.c_str());
-        
-        lua_pop(L, 2);
+        lua_pushvalue(L, -3);
+        lua_rawset(L, -3);
+        lua_pop(L, 1);
         return 0;
       }
     }

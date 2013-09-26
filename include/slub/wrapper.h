@@ -29,21 +29,35 @@ namespace slub {
 
   struct wrapper_base {
     const std::type_info* type;
+    void* raw;
   };
 
   template<typename T, typename H = holder_base*>
   struct wrapper : public wrapper_base {
+
+  private:
+    T _ref;
+
+  public:
     H holder;
-    T ref;
     bool gc;
 
     static wrapper* create(lua_State* L, const std::type_info& type) {
       wrapper* w = (wrapper*) lua_newuserdata(L, sizeof(wrapper));
       w->type = &type;
       w->holder = NULL;
-      w->ref = NULL;
+      w->_ref = NULL;
       w->gc = false;
       return w;
+    }
+
+    T ref() {
+      return _ref;
+    }
+
+    void ref(T newRef) {
+      _ref = newRef;
+      raw = (void*) newRef;
     }
 
   };

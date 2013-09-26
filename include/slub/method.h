@@ -45,7 +45,7 @@ namespace slub {
 
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
                                                   converter<arg5>::get(L, -3), converter<arg6>::get(L, -2), converter<arg7>::get(L, -1)));
     }
     
@@ -65,7 +65,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)();
+      (t->ref()->*m)();
       return 0;
     }
     
@@ -85,7 +85,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(L);
+      (t->ref()->*m)(L);
       return 0;
     }
     
@@ -105,7 +105,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)());
+      return converter<ret>::push(L, (t->ref()->*m)());
     }
     
   };
@@ -124,7 +124,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(L));
+      return converter<ret>::push(L, (t->ref()->*m)(L));
     }
     
   };
@@ -143,7 +143,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -1));
       return 0;
     }
     
@@ -163,7 +163,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -1), L);
       return 0;
     }
     
@@ -183,7 +183,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -1)));
     }
     
   };
@@ -202,7 +202,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -1), L));
     }
     
   };
@@ -221,7 +221,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
       return 0;
     }
     
@@ -241,7 +241,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
       return 0;
     }
     
@@ -261,7 +261,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
     }
     
   };
@@ -280,7 +280,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
     }
     
   };
@@ -299,7 +299,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
       return 0;
     }
     
@@ -319,7 +319,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
       return 0;
     }
     
@@ -339,7 +339,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
     }
     
   };
@@ -358,7 +358,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
     }
     
   };
@@ -377,7 +377,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
       return 0;
     }
     
@@ -397,7 +397,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L);
       return 0;
     }
     
@@ -417,7 +417,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1)));
     }
     
   };
@@ -436,7 +436,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L));
     }
     
   };
@@ -456,7 +456,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2), converter<arg5>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2), converter<arg5>::get(L, -1));
       return 0;
     }
     
@@ -477,7 +477,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2), converter<arg5>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2), converter<arg5>::get(L, -1), L);
       return 0;
     }
     
@@ -498,7 +498,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
                                                   converter<arg4>::get(L, -2), converter<arg5>::get(L, -1)));
     }
     
@@ -519,7 +519,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
                                                   converter<arg4>::get(L, -2), converter<arg5>::get(L, -1), L));
     }
     
@@ -540,7 +540,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
+      (t->ref()->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
                    converter<arg5>::get(L, -2), converter<arg6>::get(L, -1));
       return 0;
     }
@@ -562,7 +562,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
+      (t->ref()->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
                    converter<arg5>::get(L, -2), converter<arg6>::get(L, -1), L);
       return 0;
     }
@@ -584,7 +584,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
                                                   converter<arg4>::get(L, -3), converter<arg5>::get(L, -2), converter<arg6>::get(L, -1)));
     }
     
@@ -605,7 +605,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
                                                   converter<arg4>::get(L, -3), converter<arg5>::get(L, -2), converter<arg6>::get(L, -1), L));
     }
     
@@ -626,7 +626,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
+      (t->ref()->*m)(converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
                    converter<arg5>::get(L, -3), converter<arg6>::get(L, -2), converter<arg7>::get(L, -1));
       return 0;
     }
@@ -647,7 +647,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1)));
     }
     
   };
@@ -666,7 +666,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)();
+      (t->ref()->*m)();
       return 0;
     }
     
@@ -686,7 +686,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(L);
+      (t->ref()->*m)(L);
       return 0;
     }
     
@@ -706,7 +706,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)());
+      return converter<ret>::push(L, (t->ref()->*m)());
     }
     
   };
@@ -725,7 +725,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(L));
+      return converter<ret>::push(L, (t->ref()->*m)(L));
     }
     
   };
@@ -744,7 +744,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -1));
       return 0;
     }
     
@@ -764,7 +764,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -1), L);
       return 0;
     }
     
@@ -784,7 +784,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -1)));
     }
     
   };
@@ -803,7 +803,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -1), L));
     }
     
   };
@@ -822,7 +822,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
       return 0;
     }
     
@@ -842,7 +842,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
       return 0;
     }
     
@@ -862,7 +862,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
     }
     
   };
@@ -881,7 +881,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
     }
     
   };
@@ -900,7 +900,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
       return 0;
     }
     
@@ -920,7 +920,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
+      (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
       return 0;
     }
     
@@ -940,7 +940,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
     }
     
   };
@@ -959,7 +959,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (t->ref->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
+      return converter<ret>::push(L, (t->ref()->*m)(converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
     }
     
   };
@@ -978,7 +978,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (t->ref->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
+      (t->ref()->*m)(converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
       return 0;
     }
     
@@ -1000,7 +1000,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
                                           converter<arg5>::get(L, -3), converter<arg6>::get(L, -2), converter<arg7>::get(L, -1)));
     }
     
@@ -1020,7 +1020,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref);
+      (*m)(t->ref());
       return 0;
     }
     
@@ -1040,7 +1040,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, L);
+      (*m)(t->ref(), L);
       return 0;
     }
     
@@ -1060,7 +1060,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref));
+      return converter<ret>::push(L, (*m)(t->ref()));
     }
     
   };
@@ -1079,7 +1079,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, L));
+      return converter<ret>::push(L, (*m)(t->ref(), L));
     }
     
   };
@@ -1098,7 +1098,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -1));
+      (*m)(t->ref(), converter<arg1>::get(L, -1));
       return 0;
     }
     
@@ -1118,7 +1118,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -1), L);
+      (*m)(t->ref(), converter<arg1>::get(L, -1), L);
       return 0;
     }
     
@@ -1138,7 +1138,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -1)));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -1)));
     }
     
   };
@@ -1157,7 +1157,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -1), L));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -1), L));
     }
     
   };
@@ -1176,7 +1176,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
+      (*m)(t->ref(), converter<arg1>::get(L, -2), converter<arg2>::get(L, -1));
       return 0;
     }
     
@@ -1196,7 +1196,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
+      (*m)(t->ref(), converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L);
       return 0;
     }
     
@@ -1216,7 +1216,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -2), converter<arg2>::get(L, -1)));
     }
     
   };
@@ -1235,7 +1235,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -2), converter<arg2>::get(L, -1), L));
     }
     
   };
@@ -1254,7 +1254,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
+      (*m)(t->ref(), converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1));
       return 0;
     }
     
@@ -1274,7 +1274,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
+      (*m)(t->ref(), converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L);
       return 0;
     }
     
@@ -1294,7 +1294,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1)));
     }
     
   };
@@ -1313,7 +1313,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -3), converter<arg2>::get(L, -2), converter<arg3>::get(L, -1), L));
     }
     
   };
@@ -1332,7 +1332,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
+      (*m)(t->ref(), converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1));
       return 0;
     }
     
@@ -1352,7 +1352,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L);
+      (*m)(t->ref(), converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2), converter<arg4>::get(L, -1), L);
       return 0;
     }
     
@@ -1373,7 +1373,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2),
                                           converter<arg4>::get(L, -1)));
     }
     
@@ -1394,7 +1394,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -4), converter<arg2>::get(L, -3), converter<arg3>::get(L, -2),
                                           converter<arg4>::get(L, -1), L));
     }
     
@@ -1415,7 +1415,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2),
+      (*m)(t->ref(), converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2),
            converter<arg5>::get(L, -1));
       return 0;
     }
@@ -1437,7 +1437,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2),
+      (*m)(t->ref(), converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3), converter<arg4>::get(L, -2),
            converter<arg5>::get(L, -1), L);
       return 0;
     }
@@ -1459,7 +1459,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
                                           converter<arg4>::get(L, -2), converter<arg5>::get(L, -1)));
     }
     
@@ -1480,7 +1480,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -5), converter<arg2>::get(L, -4), converter<arg3>::get(L, -3),
                                           converter<arg4>::get(L, -2), converter<arg5>::get(L, -1), L));
     }
     
@@ -1501,7 +1501,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
+      (*m)(t->ref(), converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
            converter<arg5>::get(L, -2), converter<arg6>::get(L, -1));
       return 0;
     }
@@ -1523,7 +1523,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
+      (*m)(t->ref(), converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4), converter<arg4>::get(L, -3),
            converter<arg5>::get(L, -2), converter<arg6>::get(L, -1), L);
       return 0;
     }
@@ -1545,7 +1545,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
                                           converter<arg4>::get(L, -3), converter<arg5>::get(L, -2), converter<arg6>::get(L, -1)));
     }
     
@@ -1566,7 +1566,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      return converter<ret>::push(L, (*m)(t->ref, converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
+      return converter<ret>::push(L, (*m)(t->ref(), converter<arg1>::get(L, -6), converter<arg2>::get(L, -5), converter<arg3>::get(L, -4),
                                           converter<arg4>::get(L, -3), converter<arg5>::get(L, -2), converter<arg6>::get(L, -1), L));
     }
     
@@ -1587,7 +1587,7 @@ namespace slub {
     
     int call(lua_State* L) {
       wrapper<T*>* t = static_cast<wrapper<T*>*>(converter<T>::checkudata(L, 1));
-      (*m)(t->ref, converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
+      (*m)(t->ref(), converter<arg1>::get(L, -7), converter<arg2>::get(L, -6), converter<arg3>::get(L, -5), converter<arg4>::get(L, -4),
            converter<arg5>::get(L, -3), converter<arg6>::get(L, -2), converter<arg7>::get(L, -1));
       return 0;
     }

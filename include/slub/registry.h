@@ -94,6 +94,9 @@ namespace slub {
     bool hasBase();
     const list<registry*> baseList();
 
+    int getInstanceTable(lua_State* L, void* instance);
+    void removeInstanceTable(lua_State* L, void* instance);
+
   private:
 
     template<typename T>
@@ -129,6 +132,9 @@ namespace slub {
     map<string, abstract_field*> fieldMap;
     map<string, list<abstract_method*> > methodMap;
     map<string, list<abstract_operator*> > operatorMap;
+
+    map<long int, int> pushedInstances;
+    map<long int, int> pushedInstancesRefCount;
 
     list<registry*> baseList_;
 

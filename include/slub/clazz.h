@@ -40,7 +40,7 @@ namespace slub {
         delete w->holder;
       }
       else {
-        delete w->ref;
+        delete w->ref();
       }
     }
   };
@@ -702,7 +702,7 @@ namespace slub {
       if (r->containsConstructor()) {
         T* instance = r->getConstructor(L)->newInstance<T>(L);
         wrapper<T*>* w = wrapper<T*>::create(L, typeid(T));
-        w->ref = instance;
+        w->ref(instance);
         w->gc = true;
         luaL_getmetatable(L, r->getTypeName().c_str());
         lua_setmetatable(L, -2);
@@ -713,11 +713,17 @@ namespace slub {
 
     static int gc(lua_State* L) {
       wrapper<T*>* w = static_cast<wrapper<T*>*>(luaL_checkudata(L, 1, registry::get(typeid(T))->getTypeName().c_str()));
+
+      registry* r = registry::get(typeid(T));
+      if (r != NULL) {
+        r->removeInstanceTable(L, w->raw);
+      }
+
       if (w->gc) {
         D::delete_(w);
       }
       else {
-        w->ref = NULL;
+        w->ref(NULL);
       }
       return 0;
     }
