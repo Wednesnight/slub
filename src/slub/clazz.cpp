@@ -179,7 +179,11 @@ namespace slub {
         return reg->getField(lua_touserdata(L, 1), name)->set(L);
       }
       else {
+<<<<<<< HEAD
         reg->getInstanceTable(L, w->raw);
+=======
+        lua_getfenv(L, 1);
+>>>>>>> 69c06d6aa17841556b8e449842d892309e05529f
         lua_pushvalue(L, -3);
         lua_pushvalue(L, -3);
         lua_rawset(L, -3);
